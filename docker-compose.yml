@@ -9,14 +9,14 @@ services:
   #   depends_on:
   #     - strapi
   strapi:
-    build: ./backend
-    image: strapi-backend
-    container_name: strapi-backend
+    build: ./cms
+    image: strapi-cms
+    container_name: strapi-cms
     ports:
       - 127.0.0.1:1337:1337
     environment:
       DATABASE_CLIENT: postgres
-      DATABASE_NAME: strapidb
+      DATABASE_NAME: project_cold_way
       DATABASE_HOST: postgres
       DATABASE_PORT: 5432
       DATABASE_USERNAME: postgres
@@ -30,10 +30,10 @@ services:
       POSTGRES_USER: "postgres"
       POSTGRES_PASSWORD: "postgres"
     volumes:
-      - postgres-strapidb:/var/lib/postgresql/data
+      - postgres-strapidb-cold-way:/var/lib/postgresql/data
       - ./postgres:/docker-entrypoint-initdb.d/
     ports:
       - 127.0.0.1:15432:5432
 volumes:
-  postgres-strapidb:
+  postgres-strapidb-cold-way:
       driver: local
