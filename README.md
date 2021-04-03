@@ -6,6 +6,8 @@
 * [Screenshots](#screenshots)
 * [Technologies](#technologies)
 * [Setup](#setup)
+* [Status](#status)
+* [Todo's](#todo's)
 
 ## General info
 This project is simple Lorem ipsum dolor generator.
