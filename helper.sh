@@ -4,6 +4,7 @@ Help()
 {
    # Display Help
    echo "
+   🐲 helper.sh:
    Syntax: scriptTemplate [-h | db-applysql]
    options
    h                Print this Help.
@@ -11,6 +12,8 @@ Help()
                     -c | --container-name (postgresql container name)
                     -p | --postgres-user  (psql database user)
                     -s | --schema         (schema file in postgres docker-entrypoint-initdb.d/ directory)
+    start           Start the app by using docker compose up -d
+    stop            Stop the app by using docker compose stop
    "
 }
 
@@ -18,7 +21,7 @@ GetOptions()
 {
     if [ getopts ] # false = no opts given
     then
-        echo "helper.sh: use -h to display help" 
+        echo "🐲 helper.sh: use -h to display help" 
     fi
     optspec=":hcps-:"
     # parse opts and set variables printed below while
@@ -42,7 +45,7 @@ GetOptions()
                         ;;
                     *)
                         if [ "$OPTERR" = 1 ] && [ "${optspec:0:1}" != ":" ]; then
-                            echo "Unknown option --${OPTARG}" >&2
+                            echo "🐲 helper.sh: Unknown option --${OPTARG}" >&2
                         fi
                         ;;
                 esac;;
@@ -61,18 +64,11 @@ GetOptions()
                 ;;
             *)
                 if [ "$OPTERR" != 1 ] || [ "${optspec:0:1}" = ":" ]; then
-                    echo "Non-option argument: '-${OPTARG}'" >&2
+                    echo "🐲 helper.sh: Non-option argument: '-${OPTARG}'" >&2
                 fi
                 ;;
         esac
     done
-
-    echo "
-    helpersh: --input-shown:
-        -c | --container-name:  $containerName
-        -s | --schema:         $schema 
-        -p | --postgres-user:   $postgresUser
-    "
 }
 
 GetInput()
@@ -81,11 +77,17 @@ GetInput()
     db-applysql) # eg: sh helper.sh db-applysql --container-name project_cold_way_postgres --schema 1-schema.sql --postgres-user postgres
         if [ -n $containerName ] && [ -n $postgresUser ] && [ -n $schema ]
             then 
-            docker exec -it $containerName /bin/bash -c "cd docker-entrypoint-initdb.d && psql -U $postgresUser -f $schema && echo 'running sql: ...' && cat $schema"
+            docker exec -it $containerName /bin/bash -c "cd docker-entrypoint-initdb.d && psql -U $postgresUser -f $schema && echo '🐲 helper.sh: running sql: ...' && cat $schema"
         fi
         ;;
+    start)
+        docker compose up -d
+        ;;
+    stop)
+        docker compose stop
+        ;;
     *)
-        echo "missing mode input, use -h for help"
+        echo "🐲 helper.sh: missing mode input, use -h for help"
     ;;
     esac
 }
