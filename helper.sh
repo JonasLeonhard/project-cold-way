@@ -6,25 +6,29 @@ Help()
    echo "
    🐲 helper.sh:
    Syntax: scriptTemplate [-h | db-applysql]
-   options
-   h                Print this Help.
-   db-applysql      Apply .sql file in docker-entrypoint-initdb.d/ to --container-name as --postgres-user
-                    -c | --container-name (postgresql container name)
-                    -p | --postgres-user  (psql database user)
-                    -s | --schema         (schema file in postgres docker-entrypoint-initdb.d/ directory)
-    up              Build the app by using docker compose up
-    start           Start the app by using docker compose up -d
-    stop            Stop the app by using docker compose stop
+    options
+    h                Print this Help.
+    db-applysql      Apply .sql file in docker-entrypoint-initdb.d/ to --container-name as --postgres-user
+                     -c | --container-name      *(postgresql container name)
+                     -p | --postgres-user       *(psql database user)
+                     -f | --file                *(schema file in postgres docker-entrypoint-initdb.d/ directory)
+    db-applybackup   Apply a gzip backup of a postgres database file to the docker postgresql database
+                     -c | --container-name      *(postgresql container name)
+                     -d | --postgres-db-name    *(psql database name)
+                     -f | --file                *(file of database backup)          
+    up               Build the app by using docker compose up
+    start            Start the app by using docker compose up -d
+    stop             Stop the app by using docker compose stop
    "
 }
 
 GetOptions()
 {
-    if [ getopts ] # false = no opts given
+    if [ getopts ] # true = no opts given
     then
         echo "🐲 helper.sh: use -h to display help" 
     fi
-    optspec=":hcps-:"
+    optspec=":hcpf-:"
     # parse opts and set variables printed below while
     while getopts "$optspec" optchar; do
         case "${optchar}" in
@@ -41,8 +45,11 @@ GetOptions()
                     postgres-user)
                         postgresUser="${!OPTIND}"; OPTIND=$(( $OPTIND + 1 ))
                         ;;
-                    schema)
-                        schema="${!OPTIND}"; OPTIND=$(( $OPTIND + 1 ))
+                    postgres-db-name)
+                        postgresDBName="${!OPTIND}"; OPTIND=$(( $OPTIND + 1 ))
+                        ;;
+                    file)
+                        file="${!OPTIND}"; OPTIND=$(( $OPTIND + 1 ))
                         ;;
                     *)
                         if [ "$OPTERR" = 1 ] && [ "${optspec:0:1}" != ":" ]; then
@@ -60,8 +67,11 @@ GetOptions()
             p)
                 postgresUser="${!OPTIND}"; OPTIND=$(( $OPTIND + 1 ))
                 ;;
-            s) 
-                schema="${!OPTIND}"; OPTIND=$(( $OPTIND + 1 ))
+            d)
+                postgresDBName="${!OPTIND}"; OPTIND=$(( $OPTIND + 1 ))
+                ;;
+            f) 
+                file="${!OPTIND}"; OPTIND=$(( $OPTIND + 1 ))
                 ;;
             *)
                 if [ "$OPTERR" != 1 ] || [ "${optspec:0:1}" = ":" ]; then
@@ -74,11 +84,18 @@ GetOptions()
 
 GetInput()
 {
-    case $1 in 
-    db-applysql) # eg: sh helper.sh db-applysql --container-name project_cold_way_postgres --schema 1-schema.sql --postgres-user postgres
-        if [ -n $containerName ] && [ -n $postgresUser ] && [ -n $schema ]
+    case $mode in 
+    db-applysql) # eg: sh helper.sh db-applysql --container-name project_cold_way_postgres --file 1-schema.sql --postgres-user postgres
+        if [ -n $containerName ] && [ -n $postgresUser ] && [ -n $file ]
             then 
-            docker exec -it $containerName /bin/bash -c "cd docker-entrypoint-initdb.d && psql -U $postgresUser -f $schema && echo '🐲 helper.sh: running sql: ...' && cat $schema"
+            docker exec -it $containerName /bin/bash -c "cd docker-entrypoint-initdb.d && psql -U $postgresUser -f $file && echo '🐲 helper.sh: running sql: ...' && cat $file"
+        fi
+        ;;
+    db-applybackup) # eg: sh helper.sh db-applybackup --container-name project_cold_way_postgres --file '/Users/Jonas/Desktop/dump-project_cold_way-202104181900.sql' --postgres-db-name project_cold_way --postgres-user postgres
+        if [ -n $containerName ] && [ -n $postgresDBName ] && [ -n file ] && [ -n $postgresUser ]
+            then
+            docker cp $file $containerName:/dumpfile
+            docker exec -it $containerName /bin/bash -c "pg_restore -U $postgresUser -d $postgresDBName dumpfile"
         fi
         ;;
     up)
@@ -96,7 +113,11 @@ GetInput()
     esac
 }
 
-GetOptions "$@"
-GetInput "$@"
+# shift option away so getOptions has only -options left in $@
+mode=$1   
+shift 1  
+     
+GetOptions "$@"     # sets - & -- options  
+GetInput "$@"       # takes action depending on -options & mode
 
 

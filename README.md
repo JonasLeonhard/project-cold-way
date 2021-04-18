@@ -35,6 +35,10 @@ $ sh helper.sh start
 $ sh helper.sh stop
 ```
 
+When you have an existing strapi database to restore:
+```bash
+$ sh helper.sh db-applybackup --container-name project_cold_way_postgres --file '/Users/Jonas/Desktop/dump-project_cold_way-202104181900.sql' --postgres-db-name project_cold_way --postgres-user postgres
+```
 ## Known Issues
 (Setup) When you have already setup a postgresql container for another project, the postgresql container skips creating the database of /postgres/1-schema.sql, because the local postgresql volume already contains a existing database. You can run the script manually and create the database by using the helper.sh script:
 ```bash
