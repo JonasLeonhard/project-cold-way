@@ -12,6 +12,7 @@ Help()
                     -c | --container-name (postgresql container name)
                     -p | --postgres-user  (psql database user)
                     -s | --schema         (schema file in postgres docker-entrypoint-initdb.d/ directory)
+    up              Build the app by using docker compose up
     start           Start the app by using docker compose up -d
     stop            Stop the app by using docker compose stop
    "
@@ -79,6 +80,9 @@ GetInput()
             then 
             docker exec -it $containerName /bin/bash -c "cd docker-entrypoint-initdb.d && psql -U $postgresUser -f $schema && echo '🐲 helper.sh: running sql: ...' && cat $schema"
         fi
+        ;;
+    up)
+        docker compose up
         ;;
     start)
         docker compose up -d

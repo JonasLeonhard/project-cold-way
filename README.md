@@ -22,9 +22,17 @@ Project is created with:
 * Ament library version: 999
 
 ## Setup
-To run this project, install it locally using npm:
+To run this project, install it locally using yarn:
 ```bash
-$ yarn start
+$ cd frontend && yarn start
+$ cd cms && yarn develop
+```
+
+To run this project using docker compose:
+```bash
+$ sh helper.sh up           // only first build
+$ sh helper.sh start
+$ sh helper.sh stop
 ```
 
 ## Known Issues
