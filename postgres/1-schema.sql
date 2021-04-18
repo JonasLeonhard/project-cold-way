@@ -1,4 +1,4 @@
-CREATE DATABASE strapidb
+CREATE DATABASE project_cold_way
     WITH
     OWNER = postgres
     ENCODING = 'UTF8'

@@ -8,10 +8,10 @@ services:
   #     - 127.0.0.1:3000:3000
   #   depends_on:
   #     - strapi
-  strapi:
+  strapi-cms:
     build: ./cms
-    image: strapi-cms
-    container_name: strapi-cms
+    image: project_cold_way_strapi-cms
+    container_name: project_cold_way_strapi-cms
     ports:
       - 127.0.0.1:1337:1337
     environment:
@@ -26,6 +26,7 @@ services:
 
   postgres:
     image: postgres:12
+    container_name: project_cold_way_postgres
     environment:
       POSTGRES_USER: "postgres"
       POSTGRES_PASSWORD: "postgres"

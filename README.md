@@ -27,6 +27,12 @@ To run this project, install it locally using npm:
 $ yarn start
 ```
 
+## Known Issues
+(Setup) When you have already setup a postgresql container for another project, the postgresql container skips creating the database of /postgres/1-schema.sql, because the local postgresql volume already contains a existing database. You can run the script manually and create the database by using the helper.sh script:
+```bash
+$ sh helper.sh db-applysql --container-name project_cold_way_postgres --schema 1-schema.sql --postgres-user postgres
+```
+
 ## Status
 - [x] _in progress_
 - [ ] _finished_
