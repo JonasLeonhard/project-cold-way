@@ -1,0 +1,12 @@
+{
+  "name": "project-cold-way",
+  "version": "1.0.0",
+  "repository": "https://github.com/JonasLeonhard/project-cold-way.git",
+  "author": "JonasLeonhard <jonasleonhardfl@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "up": "sh helper.sh up",
+    "start": "sh helper.sh start",
+    "stop": "sh helper.sh stop"
+  }
+}

@@ -6,6 +6,7 @@
 * [Screenshots](#screenshots)
 * [Technologies](#technologies)
 * [Setup](#setup)
+* [Known_Issues](#known-issues)
 * [Status](#status)
 * [Todo's](#todo's)
 
@@ -22,23 +23,26 @@ Project is created with:
 * Ament library version: 999
 
 ## Setup
-To run this project, install it locally using yarn:
+[Docker-compose] To run this project using docker compose
+```bash
+$ yarn up       # build containers
+$ yarn start    # start containers 
+$ yarn stop     # stop containers
+
+```
+[Local] To run this project, install it locally using yarn:
+- requirements: setup postgres database at localhost:5432 -> see defaults at /cms/config/database.js
+- install dependencies in /frontend & /cms (yarn)
 ```bash
 $ cd frontend && yarn start
 $ cd cms && yarn develop
 ```
 
-To run this project using docker compose:
-```bash
-$ sh helper.sh up           // only first build
-$ sh helper.sh start
-$ sh helper.sh stop
-```
-
-When you have an existing strapi database to restore:
+[Docker] When you have an existing strapi database to restore to your new container:
 ```bash
 $ sh helper.sh db-applybackup --container-name project_cold_way_postgres --file '/Users/Jonas/Desktop/dump-project_cold_way-202104181900.sql' --postgres-db-name project_cold_way --postgres-user postgres
 ```
+
 ## Known Issues
 (Setup) When you have already setup a postgresql container for another project, the postgresql container skips creating the database of /postgres/1-schema.sql, because the local postgresql volume already contains a existing database. You can run the script manually and create the database by using the helper.sh script:
 ```bash
@@ -53,6 +57,9 @@ $ sh helper.sh db-applysql --container-name project_cold_way_postgres --schema 1
 *this application is currently under development*
 
 ## Todo's
+
+Environment:
+- [ ] add docker-compose setup for all architecture components
 
 Frontend:
 - [ ] add component library to frontend (Ant Design)

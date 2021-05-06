@@ -27,9 +27,10 @@ const Index = ({ data }: { data: ArticlesQuery } ) => {
 
 
 Index.getInitialProps = async ({ apolloClient }) => {
-  const { data }: { data: ArticlesQuery } = await apolloClient.query({
+  const { data }: { error: any, data: ArticlesQuery } = await apolloClient.query({
     query: articlesQuery
   });
+
   return {
     data
   };

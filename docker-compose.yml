@@ -1,13 +1,17 @@
 version: '3'
 services:
-  # next-frontend:
-  #   build: ./frontend
-  #   image: next-frontend
-  #   container_name: next-frontend
-  #   ports:
-  #     - 127.0.0.1:3000:3000
-  #   depends_on:
-  #     - strapi
+  next-frontend:
+    build: ./frontend
+    image: project_cold_way_next-frontend
+    container_name: project_cold_way_next-frontend
+    ports:
+      - 127.0.0.1:3000:3000
+    volumes:
+      - ./frontend/:/src/
+      - /src/node_modules
+    depends_on:
+      - strapi
+
   strapi-cms:
     build: ./cms
     image: project_cold_way_strapi-cms
@@ -17,14 +21,13 @@ services:
     volumes:
       - ./cms/:/srv/app
       - /srv/app/node_modules
-
     environment:
-      DATABASE_CLIENT: postgres
-      DATABASE_NAME: project_cold_way
-      DATABASE_HOST: postgres
-      DATABASE_PORT: 5432
-      DATABASE_USERNAME: postgres
-      DATABASE_PASSWORD: postgres
+      DATABASE_CLIENT: ${DATABASE_CLIENT:-postgres}
+      DATABASE_NAME: ${DATABASE_NAME:-project_cold_way}
+      DATABASE_HOST: ${DATABASE_HOST:-postgres}
+      DATABASE_PORT: ${DATABASE_PORT:-5432}
+      DATABASE_USERNAME: ${DATABASE_USERNAME:-postgres}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD:-postgres}
     depends_on: 
       - postgres
 
@@ -32,13 +35,14 @@ services:
     image: postgres:12
     container_name: project_cold_way_postgres
     environment:
-      POSTGRES_USER: "postgres"
-      POSTGRES_PASSWORD: "postgres"
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
     volumes:
       - postgres-strapidb-cold-way:/var/lib/postgresql/data
       - ./postgres:/docker-entrypoint-initdb.d/
     ports:
       - 127.0.0.1:15432:5432
+
 volumes:
   postgres-strapidb-cold-way:
       driver: local
