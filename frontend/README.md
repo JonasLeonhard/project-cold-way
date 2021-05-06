@@ -30,3 +30,12 @@ $ cp .env.localhost .env.production
 ```bash
 $ yarn dev
 ```
+
+
+[Antd] Update Stylesheet
+- Vars list can be found at: https://ant.design/docs/react/customize-theme
+- to update vars in the stylesheets add eg. --modify-var=@primary-color=#1C7C54 to package.json script (build:antd)
+- to render update vars in the stylesheet run:
+```bash
+$ yarn build:antd
+```

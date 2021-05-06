@@ -8,6 +8,8 @@ import Default  from './templates/default';
 import Text from './components/text/text';
 import Container from './components/container/container';
 
+import { Button, Space, DatePicker, Card } from 'antd';
+import { SmileFilled } from '@ant-design/icons'
 
 const Index = ({ data }: { data: ArticlesQuery } ) => {  
   return (
@@ -18,7 +20,12 @@ const Index = ({ data }: { data: ArticlesQuery } ) => {
         return el.title
       })}
       <Container>
-        testcontainer
+        <Space direction="vertical">
+          <SmileFilled />
+          <Button type="primary">Primary Button</Button>
+          <Button type="ghost">Ghost Button</Button>
+          <DatePicker onChange={() => {}} />
+        </Space>
       </Container>
       </Text>
     </Default>
