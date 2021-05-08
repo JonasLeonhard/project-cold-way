@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "build:antd": "yarn lessc --js --modify-var=@primary-color=#1C7C54 --modify-var=@border-radius-base=3px ./node_modules/antd/dist/antd.less > ./public/styles/ant.css"
+    "build:antd:clean": "rm ./public/styles/ant.css && touch ./public/styles/ant.css",
+    "build:antd": "sh helper.sh build:antd"
   },
   "dependencies": {
     "@ant-design/icons": "^4.6.2",
@@ -24,7 +25,8 @@
     "next-seo": "^4.17.0",
     "react": "17.0.1",
     "react-dom": "17.0.1",
-    "styled-components": "latest"
+    "styled-components": "latest",
+    "uglifycss": "^0.0.29"
   },
   "devDependencies": {
     "@babel/core": "^7.12.10",

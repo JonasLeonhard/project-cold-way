@@ -118,11 +118,16 @@ GetInput()
     esac
 }
 
-# shift option away so getOptions has only -options left in $@
-mode=$1   
-shift 1  
-     
-GetOptions "$@"     # sets - & -- options  
-GetInput "$@"       # takes action depending on -options & mode
+ParseCmdInput() {
+    mode=$1   
 
+    if [ $# -gt 1 ]; then
+        # shift option away so getOptions has only -options left in $@
+        shift 1 
+    fi
 
+    GetOptions "$@" # gets all options eg: -* --*
+    GetInput "$@" # gets $1 paramers from mode=$1
+}
+
+ParseCmdInput "$@"

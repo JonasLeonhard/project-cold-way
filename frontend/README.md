@@ -39,3 +39,11 @@ $ yarn dev
 ```bash
 $ yarn build:antd
 ```
+
+# Antd
+this project used antd design components. Rebuild the ant.min.css
+with:
+```bash
+$ yarn build:antd
+```
+Change theme parameters for antd in ./helper.sh -> $modifyVars. A list of modifyVars can be found at https://ant.design/docs/react/customize-theme
