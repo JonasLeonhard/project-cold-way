@@ -43,6 +43,16 @@ services:
     ports:
       - 127.0.0.1:15432:5432
 
+  express-backend: 
+    build: ./backend
+    image: project_cold_way_express-backend
+    container_name: project_cold_way_express-backend
+    ports:
+      - 127.0.0.1:4000:4000
+    volumes:
+      - ./backend/:/src/
+      - /src/node_modules
+
 volumes:
   postgres-strapidb-cold-way:
       driver: local
