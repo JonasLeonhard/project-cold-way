@@ -2,7 +2,7 @@ import { withApollo } from '../lib/apollo';
 import styled from 'styled-components';
 import { color, mq } from '../styles/helper';
 
-import Default  from './templates/default';
+import Default  from '../templates/default';
 
 const StyledError = styled.div`
     margin: auto;

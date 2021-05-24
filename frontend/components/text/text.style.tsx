@@ -1,5 +1,4 @@
-import styled, { css } from 'styled-components';
-import { mq } from '../../../styles/helper';
+import styled from 'styled-components';
 
 const StyledText = styled.div`
     text-align: center;

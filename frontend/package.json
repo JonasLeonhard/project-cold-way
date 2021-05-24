@@ -26,7 +26,8 @@
     "react": "17.0.1",
     "react-dom": "17.0.1",
     "styled-components": "latest",
-    "uglifycss": "^0.0.29"
+    "uglifycss": "^0.0.29",
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
     "@babel/core": "^7.12.10",
