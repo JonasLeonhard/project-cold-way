@@ -52,11 +52,4 @@ function messageRoom(ws: Socket, wss: SocketServer, request: SocketMessage) {
   }
 }
 
-function rooms(ws: Socket, wss: SocketServer, request: SocketMessage) {
-  if (typeof(request.data) !== 'string') {
-    return ws.deploy({ type: 'error', data: 'Invalid type of data. Required: data: string;'});
-  }
-  wss.broadcast(wss.clients, request, ws);
-}
-
 module.exports = wsRouter;
