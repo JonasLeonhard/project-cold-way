@@ -1,55 +1,89 @@
 import React, { createContext, useContext, useState, useEffect } from 'react'
+import { WebSocketContextType, WebSocketSendRequest, WebSocketRoom, WebSocketMessages, Ws } from '../@types/types';
 
-const WebSocketContext = createContext({});
+const WebSocketContext = createContext<WebSocketContextType>({ 
+    ws: null, 
+    messages: {
+        queue: undefined,
+        mostRecent: undefined
+    },
+    room: undefined 
+});
 
-export default WebSocketContext;
 
-export function useWebSocketContext() {
-	return useContext(WebSocketContext);
-}
+const WebSocketProvider = ({ children, roomUuid }: { children: any; roomUuid: string}) => {
+    const [ ws, setWs ] = useState<Ws>(undefined); // can only be instantiated in the client
+    const [messages, setMessages] = useState<WebSocketMessages>({
+        queue: [{ type: 'connecting', data: true }],
+        mostRecent: { type: 'connecting', data: true }
+    });
+    const [ room, setRoom ] = useState<WebSocketRoom>({
+        uuid: undefined
+    });
 
-export function WebSocketProvider({ children }) {
-    const [context, setContext] = useState<{ ws: WebSocket }>(); 
-    const [dataQueue, setDataQueue] = useState([]);
-
-    const handleMessage = (jsonData: { type: string, data: any }) => {
+    const handleMessage = (jsonData: WebSocketSendRequest) => {
         switch(jsonData.type) {
             case 'connection': 
-                console.log('onConnection')
-                context.ws.send(JSON.stringify({ type: 'join-room', data: { roomUuid: '8a826070-611c-4f35-afb9-586a83d9cef9'}}))
+                ws.send(JSON.stringify({ type: 'join-room', data: { roomUuid }}))
+                break;
+            case 'joined-room':
+                setRoom(jsonData.data.uuid);
                 break;
             case 'message-room':
-                console.log('messageRoom');
+                console.log('messageRoom', jsonData.data);
+                break;
             default:
-                console.error('HandleMessageError: unhandled type: ', jsonData);
+                console.error('WebsocketContext - HandleMessageError: unhandled type: ', jsonData);
         }
+
     };
 
     useEffect(() => {
-        console.log('dataQueue', dataQueue);
-        if (dataQueue.length > 0) {
-            handleMessage(dataQueue[dataQueue.length - 1]);
+        if (messages.queue.length > 1) {
+            handleMessage(messages.mostRecent);
         }
-    }, [dataQueue])
+    }, [messages])
 
-    if (!context && typeof window !== 'undefined') {
+    if (!ws && typeof window !== 'undefined') {
         const wsHost = 'localhost:4000';
-        const ws = new WebSocket(`ws://${wsHost}`);
-   
-        ws.addEventListener('message', data => {
+        const socket = new WebSocket(`ws://${wsHost}`) as Ws;
+        socket.addEventListener('message', wsData => {
             try {
-                setDataQueue(oldDataQueue => [...oldDataQueue, JSON.parse(data.data)]);
+                setMessages(prev => {     
+                    const parsed = JSON.parse(wsData.data);  
+                    return { 
+                        ...prev, 
+                        queue: [...prev.queue, parsed], 
+                        mostRecent: parsed 
+                    }; 
+                });              
             } catch (err) {
-                console.log('err', err);
+                console.log('WebsocketContext - parse err', err);
+                setMessages(prev => { 
+                    return { 
+                        ...prev, 
+                        queue: [...prev.queue, { type: 'connection', data: false }], 
+                        mostRecent: { type: 'connection', data: false } 
+                    }
+                });
             }
         });
 
-        setContext({ ws });
+        socket.deploy = (message: WebSocketSendRequest) => {
+            socket.send(JSON.stringify(message));
+        }
+        setWs(socket)
     }
 
     return (
-        <WebSocketContext.Provider value={context}>
+        <WebSocketContext.Provider value={{ ws, messages, room }}>
             {children}
         </WebSocketContext.Provider>
     )
 }
+
+const useWebSocketContext = (): WebSocketContextType => {
+	return useContext(WebSocketContext);
+}
+
+export { WebSocketContext, WebSocketProvider, useWebSocketContext };

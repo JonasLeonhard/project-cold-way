@@ -27,15 +27,16 @@ function joinRoom(ws: Socket, wss: SocketServer, request: SocketMessage) {
   
   const room = wss.joinRoom(ws, request.data.roomUuid);
   if (room) {
-    wss.broadcast(room, { type: 'connection', data: request.data.roomUuid }, ws);
+    wss.broadcast(room, { type: 'user-joined-room', data: request.data.roomUuid }, ws);
     ws.inRoomUuid = request.data.roomUuid;
   }
+  ws.deploy({ type: 'joined-room', data: { uuid: request.data.roomUuid }});
 };
 
 function exitRoom(ws: Socket, wss: SocketServer, request: SocketMessage) {
   if (ws.inRoomUuid) {
     wss.rooms[ws.inRoomUuid]?.delete(ws);
-    wss.broadcast(wss.rooms[ws.inRoomUuid], { type: 'close', data: ws.uuid }, ws);
+    wss.broadcast(wss.rooms[ws.inRoomUuid], { type: 'user-exited-room', data: ws.uuid }, ws);
     ws.inRoomUuid = undefined;
   }
   ws.deploy({ type: 'exit-room', data: { success: !ws.inRoomUuid }});
@@ -50,6 +51,7 @@ function messageRoom(ws: Socket, wss: SocketServer, request: SocketMessage) {
   } else {
     wss.broadcast(wss.rooms[ws.inRoomUuid], { type: request.type, data: { message: request.data, sender: ws.uuid }}, ws);
   }
+  ws.deploy({ type: 'messaged-room', data: request.data });
 }
 
 module.exports = wsRouter;

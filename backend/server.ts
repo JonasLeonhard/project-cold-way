@@ -84,7 +84,6 @@ wss.on('connection', (ws: Socket) => {
      */
     ws.on('message', (data: any) => {
         try {
-
             const request: { type?: string, data?: any } = JSON.parse(data);
             if (request?.type && request?.data ) {
                 wsRouter(ws, wss, request);
@@ -92,7 +91,7 @@ wss.on('connection', (ws: Socket) => {
                 ws.deploy({ type: 'error', data: 'Payload error: Try sending request message in json format { "type": "string", "data": "any" }' });
             }
         } catch (err) {
-            ws.deploy({ type: 'error', data: 'Payload error: Try sending request message in valid json format { "type": "string", "data": "any" }' });
+            ws.deploy({ type: 'error', data: 'Catch Payload error: Try sending request message in valid json format { "type": "string", "data": "any" }' });
         }
     });
 

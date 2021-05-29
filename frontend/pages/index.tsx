@@ -33,7 +33,6 @@ Index.getInitialProps = async ({ apolloClient }) => {
     query: articlesQuery
   });
   const roomUuid = uuidV4();
-
   return {
     data,
     roomUuid
