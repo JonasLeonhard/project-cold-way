@@ -50,6 +50,12 @@ const theme: Theme = {
         shadow: {
             100: '#ddd',
             50: '#f0f1f2'
+        },
+        error: {
+            100: '#bb081c'
+        },
+        info: {
+            100: '#bdd8f1'
         }
     },
     spacing: {

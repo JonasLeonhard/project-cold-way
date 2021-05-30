@@ -9,23 +9,23 @@ const StyledFooter = styled.div`
     margin-top: ${space('s')};
     
     .footer__card {
-        background: ${color('grey')};
+        background: ${color('grey', 50)};
         color: ${color('white')};
-        border-radius: 3px;
-        max-width: max-content;
+        border-radius: 50%;
         padding: 5px;
         cursor: pointer;
-
+        width: 2rem;
+        height: 2rem;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        
         div {
             display: flex;
             justify-content: space-between;
             align-items: center;
             gap: ${space('xs')};
         }
-    }
-    .footer__card:hover {
-        cursor: pointer;
-        background: ${color('grey', 50)};
     }
 
     .footer__copyright {

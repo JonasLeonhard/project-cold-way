@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import StyledChat from './chat.style';
 import { useWebSocketContext } from '../../contexts/WebSocketContext';
-import { Spin, Button, Tooltip, Input } from 'antd';
-import { v4 as uuidV4 } from 'uuid';
 import { WebSocketSendRequest } from '../../@types/types';
+import { v4 as uuidV4 } from 'uuid';
+import StyledChat from './chat.style';
+import { Spin, Button, Tooltip, Input } from 'antd';
+import { SendOutlined } from '@ant-design/icons';
 
 type ChatPropTypes = {
     className?: string;
@@ -18,6 +19,7 @@ const Chat: React.FC<ChatPropTypes> = ({ className, uuid }: ChatPropTypes) => {
 
     const sendMessage = (msg: string) => {
         ws.deploy({ type: 'message-room', data: msg });
+        setInputValue('');
     };
 
     const renderMessage = (msg: WebSocketSendRequest) => {
@@ -50,22 +52,24 @@ const Chat: React.FC<ChatPropTypes> = ({ className, uuid }: ChatPropTypes) => {
                 </>}
             </div>
             <div className="chat__controls">
+                <Input
+                    placeholder="message..."
+                    className="chat__message-input"
+                    name="message"
+                    value={inputValue}
+                    allowClear
+                    onChange={e => { setInputValue(e.target.value) }}
+                    onKeyDown={e => { if (e.key === 'Enter') sendMessage(inputValue) }}
+                />
                 <Tooltip
-                    trigger={['focus']}
-                    title="Send a message to the room"
-                    placement="top"
+                    trigger={['hover']}
+                    title="Send a message to the room."
+                    placement="left"
                 >
-                    <Input
-                        placeholder="message..."
-                        className="chat__message-input"
-                        name="message"
-                        value={inputValue}
-                        allowClear
-                        onChange={e => { setInputValue(e.target.value) }}
-                        onKeyDown={e => { if (e.key === 'Enter') sendMessage(inputValue) }}
-                    />
+                    <Button type="primary" block className="chat-message-button" onClick={() => sendMessage(inputValue)}>
+                        <SendOutlined />
+                    </Button>
                 </Tooltip>
-                <Button type="primary" block className="chat-message-button" onClick={() => sendMessage(inputValue)}>Send</Button>
             </div>
 
             <noscript>

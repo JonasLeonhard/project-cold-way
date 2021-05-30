@@ -17,6 +17,8 @@ const StyledChat = styled.div<Pick<ChatProps, 'open'>>`
 
     .chat__controls {
         padding: ${space('xs')};
+        display: grid;
+        grid-template-columns: 1fr auto;
     }
 `
 
