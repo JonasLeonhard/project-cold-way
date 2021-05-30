@@ -29,9 +29,6 @@ const WebSocketProvider = ({ children, roomUuid }: { children: any; roomUuid: st
             case 'joined-room':
                 setRoom(jsonData.data.uuid);
                 break;
-            case 'message-room':
-                console.log('messageRoom', jsonData.data);
-                break;
             default:
                 console.error('WebsocketContext - HandleMessageError: unhandled type: ', jsonData);
         }

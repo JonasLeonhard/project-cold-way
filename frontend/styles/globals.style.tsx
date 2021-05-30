@@ -2,6 +2,10 @@ import { createGlobalStyle } from 'styled-components';
 import { fontResize, color } from './helper';
 
 const GlobalStyle = createGlobalStyle`
+  :root {
+    --header-height: 3rem;
+  }
+
   html,
   body {
     padding: 0;

@@ -37,12 +37,19 @@ const theme: Theme = {
         l: '64rem'
     },
     colors: {
+        primary: {
+            100: '#1C7C54'
+        },
         white: {
             100: '#fff'
         },
         grey: {
-            100: '#333333',
-            50: '#1e1e1e'
+            100: '#ccc',
+            50: '#eaeaea'
+        },
+        shadow: {
+            100: '#ddd',
+            50: '#f0f1f2'
         }
     },
     spacing: {
