@@ -10,7 +10,7 @@ services:
       - ./frontend/:/src/
       - /src/node_modules
     depends_on:
-      - strapi
+      - strapi-cms
 
   strapi-cms:
     build: ./cms
@@ -23,7 +23,7 @@ services:
       - /srv/app/node_modules
     environment:
       DATABASE_CLIENT: ${DATABASE_CLIENT:-postgres}
-      DATABASE_NAME: ${DATABASE_NAME:-project_cold_way}
+      DATABASE_NAME: ${DATABASE_NAME:-strapi}
       DATABASE_HOST: ${DATABASE_HOST:-postgres}
       DATABASE_PORT: ${DATABASE_PORT:-5432}
       DATABASE_USERNAME: ${DATABASE_USERNAME:-postgres}
