@@ -7,7 +7,7 @@ import React from 'react';
 const IndexForm = () => {
     return (
         <StyledLoginForm>
-            <Link href={`${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/github`}>
+            <Link href={`${process.env.NEXT_PUBLIC_CLIENT_BACKEND_URL}/auth/github`}>
                 <a>
                     <Button type="primary" block>Sign in with Github</Button>
                 </a>
