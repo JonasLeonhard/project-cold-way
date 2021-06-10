@@ -1,6 +1,6 @@
 # Setup
 
-to start the Server on localhost:6000
+to start the Server on localhost:4000
 ```bash
-$ yarn build && yarn start
+$ yarn env:local && yarn build && yarn start
 ```
