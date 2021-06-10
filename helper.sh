@@ -104,10 +104,10 @@ GetInput()
     start)
         docker compose start
         echo "🐲 helper.sh: application using .env file running on ...
-        - frontend: localhost:3000
-        - backend: localhost:4000
-        - cms: localhost:1337/admin
-        - postgresDb: localhost:15432
+        - frontend: http://localhost:3000
+        - backend: http://localhost:4000
+        - cms: http://localhost:1337/admin
+        - postgresDb: http://localhost:15432
         "
         ;;
     stop)

@@ -1,4 +1,6 @@
+require('dotenv').config()
 import * as express from 'express';
+import sequelizeInit from './sequelize';
 import * as path from 'path';
 import * as createError from 'http-errors';
 import * as Websocket from 'ws';
@@ -33,78 +35,84 @@ app.use((err: any, req: any, res: any, next: any) => {
     if (req.app.get('env') === 'development') {
         errRes.error = err;
     }
-    
+
     res.status(err.status || 500);
     res.send(errRes);
 });
 
-const server = app.listen(app.get('port'), () => {
-    console.log(`Server started on port: ${app.get('port')})`);
-});
+//? Sequelize init
+sequelizeInit().then(db => {
+    db.sequelize.sync();
 
-/**
- * ? Setup Websocket Server and Listen for connections
- * messages have to be a JSON string of types.ts {SocketMessage}
- */
-const wss = new Websocket.Server({ server: server, path: undefined, maxPayload: 100000 }) as SocketServer;
-/**
- * Define wss helper functions:
- */
-wss.broadcast = (sockets: Set<Socket>, socketMessage: SocketMessage, broadcasting?: Socket) => {
-    sockets?.forEach(client => {
-        if (broadcasting !== client && client.readyState === client.OPEN) {
-            client.deploy(socketMessage);
-        }
+
+    const server = app.listen(app.get('port'), () => {
+        console.log(`🐲 Server started on port: ${app.get('port')})`);
     });
-};
-wss.rooms = {};
-wss.joinRoom = (ws: Socket, roomUuid: string): Set<Socket> | undefined => {
-    if (!validate(roomUuid)) {
-        ws.deploy({ type: 'error', data: 'JoinRoomError: Invalid uuid, has to be a valid uuid.'});
-        return undefined;
-    }
-    if (wss.rooms[roomUuid]) { 
-        return wss.rooms[roomUuid].add(ws)
-    }
-    wss.rooms[roomUuid] = new Set([ws]);
-    return wss.rooms[roomUuid];
-};
-
-wss.on('connection', (ws: Socket) => { 
-    /**
-     * Define ws helper functions:
-     */
-    ws.uuid = uuidV4();
-    ws.deploy = (socketMessage: SocketMessage) => {
-        ws.send(JSON.stringify(socketMessage));
-    }
 
     /**
-     * Sub-protocols
+     * ? Setup Websocket Server and Listen for connections
+     * messages have to be a JSON string of types.ts {SocketMessage}
      */
-    ws.on('message', (data: any) => {
-        try {
-            const request: { type?: string, data?: any } = JSON.parse(data);
-            if (request?.type && request?.data ) {
-                wsRouter(ws, wss, request);
-            } else {
-                ws.deploy({ type: 'error', data: 'Payload error: Try sending request message in json format { "type": "string", "data": "any" }' });
+    const wss = new Websocket.Server({ server: server, path: undefined, maxPayload: 100000 }) as SocketServer;
+    /**
+     * Define wss helper functions:
+     */
+    wss.broadcast = (sockets: Set<Socket>, socketMessage: SocketMessage, broadcasting?: Socket) => {
+        sockets?.forEach(client => {
+            if (broadcasting !== client && client.readyState === client.OPEN) {
+                client.deploy(socketMessage);
             }
-        } catch (err) {
-            ws.deploy({ type: 'error', data: 'Catch Payload error: Try sending request message in valid json format { "type": "string", "data": "any" }' });
+        });
+    };
+    wss.rooms = {};
+    wss.joinRoom = (ws: Socket, roomUuid: string): Set<Socket> | undefined => {
+        if (!validate(roomUuid)) {
+            ws.deploy({ type: 'error', data: 'JoinRoomError: Invalid uuid, has to be a valid uuid.' });
+            return undefined;
         }
-    });
-
-    ws.on('close', () => {
-        if (ws.inRoomUuid) {
-            wss.rooms[ws.inRoomUuid]?.delete(ws);
-            wss.broadcast(wss.rooms[ws.inRoomUuid], { type: 'close', data: ws.uuid });
+        if (wss.rooms[roomUuid]) {
+            return wss.rooms[roomUuid].add(ws)
         }
-    });
+        wss.rooms[roomUuid] = new Set([ws]);
+        return wss.rooms[roomUuid];
+    };
 
-    ws.on('error' , (err: string) => {
-        ws.deploy({ type: 'error', data: 'MayPayload exeeded error: Only 100000 bytes allowed in message.' });
-    });
+    wss.on('connection', (ws: Socket) => {
+        /**
+         * Define ws helper functions:
+         */
+        ws.uuid = uuidV4();
+        ws.deploy = (socketMessage: SocketMessage) => {
+            ws.send(JSON.stringify(socketMessage));
+        }
 
-    ws.deploy({ type: 'connection', data: true});
-})
+        /**
+         * Sub-protocols
+         */
+        ws.on('message', (data: any) => {
+            try {
+                const request: { type?: string, data?: any } = JSON.parse(data);
+                if (request?.type && request?.data) {
+                    wsRouter(ws, wss, request);
+                } else {
+                    ws.deploy({ type: 'error', data: 'Payload error: Try sending request message in json format { "type": "string", "data": "any" }' });
+                }
+            } catch (err) {
+                ws.deploy({ type: 'error', data: 'Catch Payload error: Try sending request message in valid json format { "type": "string", "data": "any" }' });
+            }
+        });
+
+        ws.on('close', () => {
+            if (ws.inRoomUuid) {
+                wss.rooms[ws.inRoomUuid]?.delete(ws);
+                wss.broadcast(wss.rooms[ws.inRoomUuid], { type: 'close', data: ws.uuid });
+            }
+        });
+
+        ws.on('error', (err: string) => {
+            ws.deploy({ type: 'error', data: 'MayPayload exeeded error: Only 100000 bytes allowed in message.' });
+        });
+
+        ws.deploy({ type: 'connection', data: true });
+    });
+});
