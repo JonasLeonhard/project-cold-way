@@ -3,6 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "env:local": "cp .env.localhost .env",
+    "env:docker": "cp .env.docker .env",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",

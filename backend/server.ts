@@ -10,6 +10,7 @@ import { Socket, SocketMessage, SocketServer } from './types';
 const app = express();
 
 const indexRouter = require('./routes/index');
+const authRouter = require('./routes/auth');
 const wsRouter = require('./routes/websocket');
 
 // ? Express Configuration
@@ -20,6 +21,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Routes
 app.use('/', indexRouter);
+app.use('/auth', authRouter);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
@@ -46,7 +48,7 @@ sequelizeInit().then(db => {
 
 
     const server = app.listen(app.get('port'), () => {
-        console.log(`🐲 Server started on port: ${app.get('port')})`);
+        console.log(`🐲 Server started on port: (${app.get('port')})`);
     });
 
     /**
