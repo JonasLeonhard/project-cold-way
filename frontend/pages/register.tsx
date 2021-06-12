@@ -2,14 +2,14 @@ import React from 'react';
 
 import Default from '../templates/default';
 
-import LoginForm from '../components/loginForm/loginForm';
+import RegisterForm from '../components/registerForm/registerForm';
 
-const Login = () => {
+const Register = () => {
   return (
     <Default title="Jonasleonhard.de | Login" description="Jonas Leonhard Login Page">
-        <LoginForm />
+        <RegisterForm />
     </Default>
   )
 }
 
-export default Login;
+export default Register;

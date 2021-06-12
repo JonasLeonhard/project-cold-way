@@ -6,6 +6,10 @@ import * as createError from 'http-errors';
 import * as Websocket from 'ws';
 import { v4 as uuidV4, validate } from 'uuid';
 import { Socket, SocketMessage, SocketServer } from './types';
+import { initializeAuthentication  } from './auth';
+const passport = require('passport');
+const cookieParser = require('cookie-parser');
+const cors = require('cors');
 
 const app = express();
 
@@ -16,8 +20,15 @@ const wsRouter = require('./routes/websocket');
 // ? Express Configuration
 app.set('port', process.env.PORT || 4000);
 app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(cookieParser());
+app.use(passport.initialize());
+app.use(cors({
+    origin: process.env.CLIENT_URL, 
+    credentials: true
+}));
+initializeAuthentication(app);
 
 // Routes
 app.use('/', indexRouter);

@@ -44,7 +44,6 @@ const Header: React.FC = () => {
 
     useEffect(() => {
         if (router) {
-            console.log(router.pathname);
             const linkPath = router.pathname.split('/');
             linkPath.shift();
 
@@ -75,19 +74,22 @@ const Header: React.FC = () => {
     return (
         <StyledHeader>
             <Breadcrumb>
-                <Breadcrumb.Item href="/">
+                <Breadcrumb.Item href="/" key="/">
                     <HomeOutlined />
                 </Breadcrumb.Item>
                 {breadcrumbs?.map(breadcrumb => {
                     return <Breadcrumb.Item
                         className={`header__breadcrumb header__breadcrumb-${breadcrumb.active ? 'active' : 'inactive'}`}
+                        key={breadcrumb.active ? breadcrumb.href : undefined}
                         href={breadcrumb.active ? breadcrumb.href : undefined}>
                         {breadcrumb.breadcrumb}
                     </Breadcrumb.Item>
                 })}
-                <noscript>
-                    *You need to have Javascript enabled for this functionality to load.
-                </noscript>
+                <Breadcrumb.Item key='javascript-disabled'>
+                    <noscript>
+                        *You need to have Javascript enabled for this functionality to load.
+                    </noscript>
+                </Breadcrumb.Item>
             </Breadcrumb>
 
             <div className="header__options">

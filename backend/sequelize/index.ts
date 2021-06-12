@@ -1,13 +1,8 @@
-import { Sequelize, Dialect, Model } from 'sequelize';
+import { Sequelize, Dialect } from 'sequelize';
+import { Database } from '../types';
 import * as fs from 'fs';
 import * as path from 'path';
 
-export type Database = {
-    sequelize: Sequelize,
-    models: {
-        [filename: string]: any
-    }
-};
 /**
  * create a connection to the database using .env file variables or defaults:
  * - SEQUELIZE_DBNAME || 'postgres'

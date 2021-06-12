@@ -1,9 +1,10 @@
-import * as express from 'express';
+import { Router, Request, Response } from 'express';
+import { UserRepository } from '../sequelize/repositories';
 
-const router = express.Router();
+const router = Router();
 
-router.get('/', (req: any, res: any, next: any) => {
-  res.send({ "running": true });
+router.get('/', async (req: Request, res: Response, next: any) => {  
+  res.send({ "running": true, user: await UserRepository.getUserById(7) });
 });
 
 module.exports = router;

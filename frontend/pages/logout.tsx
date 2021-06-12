@@ -5,7 +5,7 @@ import Default from '../templates/default';
 import Container from '../components/container/container';
 import LogoutForm from '../components/logoutForm/logoutForm';
 
-const Index = () => {
+const Logout = () => {
   return (
     <Default title="Jonasleonhard.de | Login" description="Jonas Leonhard Login Page">
         <Container>
@@ -15,4 +15,4 @@ const Index = () => {
   )
 }
 
-export default Index;
+export default Logout;
