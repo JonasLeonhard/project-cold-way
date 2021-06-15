@@ -10,11 +10,14 @@ import Default from '../templates/default';
 import Text from '../components/text/text';
 import Container from '../components/container/container';
 import IndexForm from '../components/indexForm/indexForm';
+import { useAuthContext } from '../contexts/AuthContext';
 
 const Index = ({ data, roomUuid }: { data: ArticlesQuery, roomUuid: string }) => {
+  const auth = useAuthContext();
   return (
     <Default title="Jonasleonhard.de" description="Jonas Leonhard Index Page">
       <Text>
+        {console.log('auth:', auth)}
         <h1>Lora Font</h1>
       rendered index.tsx {data.articles.map(el => {
           return el.title

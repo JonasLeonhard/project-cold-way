@@ -10,7 +10,6 @@ const cookieOptions = (req: Request): CookieOptions => {return {
   secure: process.env.CLIENT_SERVER_URL?.includes("https"),
   maxAge: Date.now() + 60 * 60 * 1000 * 4,
   domain: req.hostname,
-  httpOnly: true,
   sameSite: 'lax'
 }};
 

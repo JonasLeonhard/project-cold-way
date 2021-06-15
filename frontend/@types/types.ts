@@ -22,3 +22,14 @@ export type WebSocketContextType = {
     messages: WebSocketMessages;
     room: WebSocketRoom;
 };
+
+export type AuthContextType = {
+    email: string,
+    password: string,
+    displayName: string,
+    providerId: string,
+    provider: string,
+    businessName: string,
+    firstName: string,
+    lastName: string
+}
