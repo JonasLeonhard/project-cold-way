@@ -1,6 +1,7 @@
 import React from 'react';
 import StyledRegisterForm from './registerForm.style';
 import { Form, Input, Button } from 'antd';
+import { UserOutlined, LockOutlined, MailOutlined } from '@ant-design/icons';
 
 const layout = {
     labelCol: {
@@ -44,7 +45,7 @@ const IndexForm = () => {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json'
             },
-            credentials: 'same-origin',
+            credentials: 'include',
             body: JSON.stringify(values)
         })
         .then(response => response.json())
@@ -74,7 +75,7 @@ const IndexForm = () => {
                         },
                     ]}
                 >
-                    <Input />
+                    <Input prefix={<MailOutlined />} />
                 </Form.Item>
                 <Form.Item
                     name="password"
@@ -85,7 +86,7 @@ const IndexForm = () => {
                         },
                     ]}
                 >
-                    <Input.Password />
+                    <Input.Password prefix={<LockOutlined />}/>
                 </Form.Item>
                 <Form.Item
                     name="confirm"
@@ -108,7 +109,7 @@ const IndexForm = () => {
                         }),
                     ]}
                 >
-                    <Input.Password />
+                    <Input.Password prefix={<LockOutlined />} />
                 </Form.Item>
                 <Form.Item
                     name="displayName"
@@ -122,7 +123,7 @@ const IndexForm = () => {
                         },
                     ]}
                 >
-                    <Input />
+                    <Input prefix={<UserOutlined />}/>
                 </Form.Item>
                 <Form.Item
                     name="businessName"

@@ -17,7 +17,7 @@ const createApolloClient= (initialState, ctx) => {
     return new ApolloClient({
         ssrMode: Boolean(ctx),
         link: new HttpLink({
-            uri: `http://${process.env.NEXT_PUBLIC_SERVERSIDE_APOLLO_CMS_URL}/graphql`, // Server URL (must be absolute)
+            uri: typeof window === 'undefined' ? `${process.env.NEXT_PUBLIC_SERVERSIDE_APOLLO_CMS_URL}/graphql` : `${process.env.NEXT_PUBLIC_CLIENT_APOLLO_CMS_URL}/graphql`, // Server URL (must be absolute)
             credentials: 'same-origin', // Additional fetch() options like `credentials` or `headers`
             fetch,
         }),
