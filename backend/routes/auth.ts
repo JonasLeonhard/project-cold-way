@@ -1,6 +1,6 @@
 import { Router, Request, Response, CookieOptions } from 'express';
 import { to } from 'await-to-js';
-import { verifyPassword, hashPassword } from '../auth/utils'
+import { verifyPassword, hashPassword, verifyToken } from '../auth/utils'
 import { login as JWTLogin } from '../auth/strategies/jwt.strategy';
 import { UserRepository } from '../sequelize/repositories';
 
@@ -12,9 +12,13 @@ const cookieOptions = (req: Request): CookieOptions => {return {
   domain: req.hostname,
   sameSite: 'lax'
 }};
-
+/**
+ * Route checks if User with { email, password } exists in Database. If so a JWT 
+ * is created and set for the client.
+ */
 router.post('/login', async (req: Request, res: Response) => {
   const { email, password } = req.body;
+  console.log('email', email);
   const [err, user] = await to(UserRepository.getUserByEmail(email));
 
   const authenticationError = () => {
@@ -44,6 +48,10 @@ router.post('/login', async (req: Request, res: Response) => {
   .json({ success: true, data: '/' });
 });
 
+/**
+ * Register Route creates a new User in the database. If the user is created,
+ * a JWT is set as a cooke for the client.
+ */
 router.post('/register', async (req: Request, res: Response) => {
   console.log('/register called!!!', req.body);
   const {
@@ -86,5 +94,42 @@ router.post('/register', async (req: Request, res: Response) => {
     .status(200)
     .cookie("jwt", token, cookieOptions(req))
     .json({ success: true, data: '/' });
+});
+
+/**
+ * Validates a JWT cookie. Has two modes: 
+ * forwarded_user_cookie: this is the cookie forwared by the next.js clientside app, to be validated
+ * cookie: this is the cooke set by the client to be validated
+ */
+router.post('/token', async (req: Request, res: Response) => {
+  const jwt = req.headers.forwarded_user_cookie ? req.headers.forwarded_user_cookie : req.headers.cookie;
+  // remove the 'jwt=' from the cookie to get the token.
+  const [verifyError, verified] = await to(verifyToken(jwt ? jwt?.toString().substring(4) : ''));
+  const tokenError = () => {
+    return res.status(200).json({ data: { user: null, status: 'SIGNED_OUT' }})
+  };
+
+  if (verifyError) {
+    return tokenError();
+  }
+  if (verified) {
+    const [err, user] = await to(UserRepository.getUserByEmail((verified as { data: { email: string } }).data.email));
+
+    if (!user || err) {
+      console.error('User with email does not exist.');
+      return tokenError();
+    }
+  
+    // check hashed password in jwt with hashed password in database
+    if ((verified as { data: { password: string }}).data.password !== user.password) {
+      console.error('Passwords do not match.');
+      return tokenError();
+    }
+
+    return res.status(200).json({ data: { user, status: 'SIGNED_IN' }});
+
+  } else {
+    return tokenError();
+  }
 });
 module.exports = router;

@@ -1,11 +1,13 @@
 import GlobalStyle from '../styles/globals.style';
 import theme from '../styles/theme';
 
-import { AuthProvider } from '../contexts/AuthContext';
+import App from "next/app";
+import { AuthProvider, getAuth } from '../contexts/AuthContext';
 import { ThemeProvider } from 'styled-components';
-function MyApp({ Component, pageProps }) {
+
+function MyApp({ Component, pageProps, auth }) {
   return (
-    <AuthProvider>
+    <AuthProvider auth={auth} >
       <ThemeProvider theme={theme}>
         <GlobalStyle />
         <Component {...pageProps} />
@@ -13,5 +15,12 @@ function MyApp({ Component, pageProps }) {
     </AuthProvider>
   )
 }
+
+MyApp.getInitialProps = async (ctx) => {
+  const appProps = await App.getInitialProps(ctx);
+  const auth = await getAuth(ctx.ctx);
+  console.log('initalprops auth:', auth);
+  return { ...appProps, auth: auth };
+};
 
 export default MyApp

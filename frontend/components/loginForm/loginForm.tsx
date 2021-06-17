@@ -1,7 +1,7 @@
 import React from 'react';
 import StyledLoginForm from './loginForm.style';
 import Link from 'next/link';
-import { useRouter } from 'next/router'
+import { useAuthContext } from '../../contexts/AuthContext';
 
 import { Button, Form, Input, Checkbox } from 'antd';
 import { LockOutlined, GithubOutlined, MailOutlined } from '@ant-design/icons';
@@ -27,25 +27,11 @@ const layout = {
 
 const IndexForm = () => {
     const [form] = Form.useForm();
-    const router = useRouter();
+    const auth = useAuthContext();
 
     const onFinish = values => {
         console.log('onfinish', values);
-        fetch(`${process.env.NEXT_PUBLIC_CLIENT_BACKEND_URL}/auth/login`, {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
-            credentials: 'include',
-            body: JSON.stringify(values)
-        })
-        .then(response => response.json())
-        .then(data => {
-            console.log('rec:', data);
-            router.push(data.data)
-        })
-        .catch(err => console.log('error fetch', err));
+        auth.login(values);
     };
 
     return (

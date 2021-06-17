@@ -23,7 +23,7 @@ export type WebSocketContextType = {
     room: WebSocketRoom;
 };
 
-export type AuthContextType = {
+export type AuthUser = {
     email: string,
     password: string,
     displayName: string,
@@ -32,4 +32,16 @@ export type AuthContextType = {
     businessName: string,
     firstName: string,
     lastName: string
+}
+
+export type Auth = {
+    user: AuthUser,
+    status: 'SIGNED_OUT' | 'SIGNED_IN'
+}
+
+export type AuthContextType = {
+    auth: Auth,
+    login: (values: Object) => Promise<boolean>,
+    logout: () => Promise<boolean>,
+    register: (values: Object)  => Promise<boolean>
 }

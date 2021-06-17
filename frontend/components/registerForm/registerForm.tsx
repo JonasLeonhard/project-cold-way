@@ -1,5 +1,6 @@
 import React from 'react';
 import StyledRegisterForm from './registerForm.style';
+import { useAuthContext } from '../../contexts/AuthContext';
 import { Form, Input, Button } from 'antd';
 import { UserOutlined, LockOutlined, MailOutlined } from '@ant-design/icons';
 
@@ -36,21 +37,11 @@ const tailLayout = {
 
 const IndexForm = () => {
     const [form] = Form.useForm();
+    const auth = useAuthContext();
 
     const onFinish = values => {
         console.log('submitted register!', values);
-        fetch(`${process.env.NEXT_PUBLIC_CLIENT_BACKEND_URL}/auth/register`, {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
-            credentials: 'include',
-            body: JSON.stringify(values)
-        })
-        .then(response => response.json())
-        .then(data => console.log('return fetch:', data))
-        .catch(err => console.log('error fetch', err));
+        auth.register(values);
     };
 
     return (

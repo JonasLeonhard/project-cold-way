@@ -29,6 +29,14 @@ const signToken = (user: User) => {
     });
 };
 
+const verifyToken = async (jwToken: string) => {
+    if(!process.env.JWT_SECRET) {
+        throw new Error('process.env.JWT_SECRET is not set! Please set it in .env and restart the application.');
+    }
+
+    return await jwt.verify(jwToken, process.env.JWT_SECRET);
+};
+
 const verifyPassword = async (candidate: string, actual: string) => {
     return await bcrypt.compare(candidate, actual)
 };
@@ -41,6 +49,7 @@ const hashPassword = async (password: string): Promise<string> => {
 export {
     setup,
     signToken,
+    verifyToken,
     verifyPassword,
     hashPassword
 }
