@@ -25,6 +25,16 @@ Project is created with:
 * Ament library version: 999
 
 ## Setup
+[Env] Environment Setup:
+- configure the following .env variables:
+  (Docker compose) ./.env
+  (frontend) ./frontend/.env
+  (backend) ./backend/.env
+To display the default values run:
+```bash
+  yarn env:show
+```
+
 [Docker-compose] To run this project using docker compose
 ```bash
 $ yarn up       # build containers

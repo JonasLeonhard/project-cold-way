@@ -19,7 +19,6 @@ function MyApp({ Component, pageProps, auth }) {
 MyApp.getInitialProps = async (ctx) => {
   const appProps = await App.getInitialProps(ctx);
   const auth = await getAuth(ctx.ctx);
-  console.log('initalprops auth:', auth);
   return { ...appProps, auth: auth };
 };
 

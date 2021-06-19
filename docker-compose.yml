@@ -9,6 +9,7 @@ services:
     volumes:
       - ./frontend/:/src/
       - /src/node_modules
+      - /src/.env
     depends_on:
       - strapi-cms
 
@@ -52,6 +53,7 @@ services:
     volumes:
       - ./backend/:/src/
       - /src/node_modules
+      - /src/.env
 
 volumes:
   postgres-strapidb-cold-way:

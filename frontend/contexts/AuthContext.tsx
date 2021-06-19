@@ -39,12 +39,10 @@ const getAuth: (ctx: any) => Promise<Auth> = async ctx => {
     })
     .then(response => response.json())
     .catch(err => {
-        console.error('Login error fetch', err);
-        return Promise.reject({ status: 'SIGNED_OUT', user: null });
+        console.error('Login error while fetching from auth server:', err);
+        return { status: 'SIGNED_OUT', user: null };
     });
-
-    console.log('getAuth response', response);
-    return Promise.resolve(response.data);
+    return response;
 }
 
 const AuthProvider = ({ children, auth }: { children: any; auth: any }) => {
@@ -119,7 +117,6 @@ const AuthProvider = ({ children, auth }: { children: any; auth: any }) => {
         return Promise.resolve(true);
     }
 
-    console.log('setAuthcontext', auth);
     return (
         <AuthContext.Provider value={{ auth: auth ? auth : { status: 'SIGNED_OUT', user: null }, login, logout, register }}>
             {children}

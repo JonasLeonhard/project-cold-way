@@ -7,6 +7,7 @@
   "scripts": {
     "up": "sh helper.sh up",
     "start": "sh helper.sh start",
-    "stop": "sh helper.sh stop"
+    "stop": "sh helper.sh stop",
+    "env:show": "echo '🐲 Docker compose: \n' && cat ./.env && echo '\n🐲 Frontend: \n' && cat ./frontend/.env && echo '\n🐲 Backend: \n' && cat ./backend/.env"
   }
 }
