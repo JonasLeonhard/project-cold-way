@@ -5,7 +5,7 @@ import LogoutForm from '../components/logoutForm/logoutForm';
 
 const Logout = () => {
   return (
-    <Default title="Jonasleonhard.de | Login" description="Jonas Leonhard Login Page">
+    <Default title="Jonasleonhard.de | Logout" description="Jonas Leonhard Logout Page">
         <LogoutForm />
     </Default>
   )

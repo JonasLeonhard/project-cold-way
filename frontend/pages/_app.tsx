@@ -2,7 +2,7 @@ import GlobalStyle from '../styles/globals.style';
 import theme from '../styles/theme';
 
 import App from "next/app";
-import { AuthProvider, getAuth } from '../contexts/AuthContext';
+import { AuthProvider, getAuth, redirectProtectedRoutesOnAuthMissing } from '../contexts/AuthContext';
 import { ThemeProvider } from 'styled-components';
 
 function MyApp({ Component, pageProps, auth }) {
@@ -19,6 +19,7 @@ function MyApp({ Component, pageProps, auth }) {
 MyApp.getInitialProps = async (ctx) => {
   const appProps = await App.getInitialProps(ctx);
   const auth = await getAuth(ctx.ctx);
+  await redirectProtectedRoutesOnAuthMissing(ctx.ctx, auth);
   return { ...appProps, auth: auth };
 };
 
