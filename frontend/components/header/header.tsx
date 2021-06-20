@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import { useAuthContext } from '../../contexts/AuthContext';
 import StyledHeader from './header.style';
 import { Breadcrumb, Dropdown, Menu, Button } from 'antd';
 import { HomeOutlined, UserOutlined, LogoutOutlined, ProfileOutlined } from '@ant-design/icons';
@@ -10,6 +11,7 @@ export type Breadcrumbs = Array<{ href?: string, breadcrumb: string }>;
 const Header: React.FC = () => {
     const router = useRouter();
     const [breadcrumbs, setBreadcrumbs] = useState<Array<{ breadcrumb: string; href: string; active?: boolean }>>(null);
+    const auth = useAuthContext();
 
     const excludePaths = {
         'room': true,
@@ -18,27 +20,44 @@ const Header: React.FC = () => {
 
     const menu = (
         <Menu>
-            <Menu.Item key="1" icon={<UserOutlined />}>
-                <Link href="/profile">
-                    <a>
-                        Profile
-                    </a>
-                </Link>
-            </Menu.Item>
-            <Menu.Item key="2" icon={<ProfileOutlined />}>
-                <Link href="/profile">
-                    <a>
-                        Settings
-                    </a>
-                </Link>
-            </Menu.Item>
-            <Menu.Item key="3" icon={<LogoutOutlined />}>
-                <Link href="/logout">
-                    <a>
-                        Logout
-                    </a>
-                </Link>
-            </Menu.Item>
+            {auth?.auth?.user ? <>
+                <Menu.Item key="1" icon={<UserOutlined />}>
+                    <Link href="/profile">
+                        <a>
+                            Profile
+                        </a>
+                    </Link>
+                </Menu.Item>
+                <Menu.Item key="2" icon={<ProfileOutlined />}>
+                    <Link href="/profile">
+                        <a>
+                            Settings
+                        </a>
+                    </Link>
+                </Menu.Item>
+                <Menu.Item key="3" icon={<LogoutOutlined />}>
+                    <Link href="/logout">
+                        <a>
+                            Logout
+                        </a>
+                    </Link>
+                </Menu.Item>
+            </> : <>
+                <Menu.Item key="1" icon={<UserOutlined />}>
+                    <Link href="/login">
+                        <a>
+                            Login
+                        </a>
+                    </Link>
+                </Menu.Item>
+                <Menu.Item key="2" icon={<ProfileOutlined />}>
+                    <Link href="/register">
+                        <a>
+                            Register
+                        </a>
+                    </Link>
+                </Menu.Item>
+            </>}
         </Menu>
     );
 
