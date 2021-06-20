@@ -13,6 +13,7 @@ const Header: React.FC = () => {
     const [breadcrumbs, setBreadcrumbs] = useState<Array<{ breadcrumb: string; href: string; active?: boolean }>>(null);
     const auth = useAuthContext();
 
+    // Paths to exlude beeing clickable in Breadcrumbs:
     const excludePaths = {
         'room': true,
         '[uuid]': true

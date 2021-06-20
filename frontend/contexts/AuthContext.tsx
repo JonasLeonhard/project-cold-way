@@ -1,4 +1,4 @@
-import React, { createContext, useContext } from 'react'
+import React, { createContext, useContext, useEffect } from 'react'
 import { AuthContextType, Auth } from '../@types/types';
 import { useRouter } from 'next/router';
 import { NextPageContext } from 'next';
@@ -89,7 +89,8 @@ const AuthProvider = ({ children, auth }: { children: any; auth: any }) => {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                no_redirect: 'true'
             },
             credentials: 'include',
             body: JSON.stringify(values)
@@ -97,12 +98,12 @@ const AuthProvider = ({ children, auth }: { children: any; auth: any }) => {
         .then(response => response.json())
         .catch(err => {
             console.error('Login error fetch', err);
-            return Promise.reject(false);
+            router.push('/login?error="Login error. Please try again."')
+            return Promise.resolve(false);
         });
 
         console.log('Login response:', response);
         router.push(response.data);
-
         return Promise.resolve(true);
     };
 
@@ -111,14 +112,15 @@ const AuthProvider = ({ children, auth }: { children: any; auth: any }) => {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                no_redirect: 'true'
             },
             credentials: 'include',
         })
         .then(response => response.json())
         .catch(err => {
             console.error('Logout error fetch', err);
-            return Promise.reject(false);
+            return Promise.resolve(false);
         });
 
         console.log('Logout response', response);
@@ -134,7 +136,8 @@ const AuthProvider = ({ children, auth }: { children: any; auth: any }) => {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                no_redirect: 'true'
             },
             credentials: 'include',
             body: JSON.stringify(values)
@@ -142,7 +145,7 @@ const AuthProvider = ({ children, auth }: { children: any; auth: any }) => {
         .then(response => response.json())
         .catch(err => {
             console.error('Register error fetch', err);
-            return Promise.reject(false);
+            return Promise.resolve(false);
         });
 
         console.log('register response', response);

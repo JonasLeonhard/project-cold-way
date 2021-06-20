@@ -1,7 +1,8 @@
 import React from 'react';
+import { useRouter } from 'next/router';
 import StyledRegisterForm from './registerForm.style';
 import { useAuthContext } from '../../contexts/AuthContext';
-import { Form, Input, Button } from 'antd';
+import { Form, Input, Button, Alert } from 'antd';
 import { UserOutlined, LockOutlined, MailOutlined } from '@ant-design/icons';
 
 const layout = {
@@ -38,7 +39,7 @@ const tailLayout = {
 const IndexForm = () => {
     const [form] = Form.useForm();
     const auth = useAuthContext();
-
+    const router = useRouter();
     const onFinish = values => {
         console.log('submitted register!', values);
         auth.register(values);
@@ -46,6 +47,9 @@ const IndexForm = () => {
 
     return (
         <StyledRegisterForm>
+            { router.query.error && 
+                <Alert type="error" message={router.query.error} banner />
+            }
             <Form {...layout}
                 form={form}
                 name="control-hooks"
@@ -66,7 +70,7 @@ const IndexForm = () => {
                         },
                     ]}
                 >
-                    <Input prefix={<MailOutlined />} />
+                    <Input name="email" prefix={<MailOutlined />} />
                 </Form.Item>
                 <Form.Item
                     name="password"
@@ -77,7 +81,7 @@ const IndexForm = () => {
                         },
                     ]}
                 >
-                    <Input.Password prefix={<LockOutlined />}/>
+                    <Input.Password name="password" prefix={<LockOutlined />}/>
                 </Form.Item>
                 <Form.Item
                     name="confirm"
@@ -100,7 +104,7 @@ const IndexForm = () => {
                         }),
                     ]}
                 >
-                    <Input.Password prefix={<LockOutlined />} />
+                    <Input.Password name="confirm" prefix={<LockOutlined />} />
                 </Form.Item>
                 <Form.Item
                     name="displayName"
@@ -114,7 +118,7 @@ const IndexForm = () => {
                         },
                     ]}
                 >
-                    <Input prefix={<UserOutlined />}/>
+                    <Input name="displayName" prefix={<UserOutlined />}/>
                 </Form.Item>
                 <Form.Item
                     name="businessName"
@@ -127,7 +131,7 @@ const IndexForm = () => {
                         },
                     ]}
                 >
-                    <Input />
+                    <Input name="businessName" />
                 </Form.Item>
                 <Form.Item
                     name="firstName"
@@ -140,7 +144,7 @@ const IndexForm = () => {
                         },
                     ]}
                 >
-                    <Input />
+                    <Input name="firstName" />
                 </Form.Item>
                 <Form.Item
                     name="lastName"
@@ -153,7 +157,7 @@ const IndexForm = () => {
                         },
                     ]}
                 >
-                    <Input />
+                    <Input name="lastName" />
                 </Form.Item>
                 <Form.Item {...tailLayout}>
                     <Button type="primary" htmlType="submit">

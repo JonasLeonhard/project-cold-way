@@ -5,6 +5,7 @@ import SeoHead from '../components/seoHead/seoHead';
 import Container from '../components/container/container';
 import Header from '../components/header/header';
 import Footer from '../components/footer/footer';
+import NProgress from '../components/nProgress/nProgress';
 
 type DefaultProps = {
   children: JSX.Element | string;
@@ -19,7 +20,8 @@ const Default: React.FC<DefaultProps> = ({ children, title, description, noindex
     <StyledDefault>
         <Header />
         <SeoHead title={title} description={description} noindex={noindex} nofollow={nofollow} />
-
+        <NProgress />
+        
         <Container className="default__container">
           {children}
         </Container>

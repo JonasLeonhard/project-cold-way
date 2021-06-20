@@ -1,10 +1,9 @@
+import App from "next/app";
 import GlobalStyle from '../styles/globals.style';
+import { ThemeProvider } from 'styled-components';
 import theme from '../styles/theme';
 
-import App from "next/app";
 import { AuthProvider, getAuth, redirectProtectedRoutesOnAuthMissing } from '../contexts/AuthContext';
-import { ThemeProvider } from 'styled-components';
-
 function MyApp({ Component, pageProps, auth }) {
   return (
     <AuthProvider auth={auth} >
@@ -17,6 +16,7 @@ function MyApp({ Component, pageProps, auth }) {
 }
 
 MyApp.getInitialProps = async (ctx) => {
+  console.log('myapp get initial props....');
   const appProps = await App.getInitialProps(ctx);
   const auth = await getAuth(ctx.ctx);
   await redirectProtectedRoutesOnAuthMissing(ctx.ctx, auth);
