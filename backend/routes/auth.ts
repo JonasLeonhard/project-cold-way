@@ -97,19 +97,31 @@ router.post('/register', async (req: Request, res: Response) => {
 });
 
 /**
+ * Invalidates the current session token.
+ */
+router.post('/logout', async (req: Request, res: Response) => {
+  return res
+  .status(200)
+  .cookie("jwt", null, cookieOptions(req))
+  .json({ success: true, data: '/'});
+});
+
+/**
  * Validates a JWT cookie. Has two modes: 
  * forwarded_user_cookie: this is the cookie forwared by the next.js clientside app, to be validated
  * cookie: this is the cooke set by the client to be validated
  */
 router.post('/token', async (req: Request, res: Response) => {
+  console.log('called auth token!');
   const jwt = req.headers.forwarded_user_cookie ? req.headers.forwarded_user_cookie : req.headers.cookie;
   // remove the 'jwt=' from the cookie to get the token.
   const [verifyError, verified] = await to(verifyToken(jwt ? jwt?.toString().substring(4) : ''));
   const tokenError = () => {
-    return res.status(200).json({ data: { user: null, status: 'SIGNED_OUT' }})
+    return res.status(200).json({ user: null, status: 'SIGNED_OUT' });
   };
 
   if (verifyError) {
+    console.log('Verify Error', verifyError);
     return tokenError();
   }
   if (verified) {
@@ -126,7 +138,7 @@ router.post('/token', async (req: Request, res: Response) => {
       return tokenError();
     }
 
-    return res.status(200).json({ data: { user, status: 'SIGNED_IN' }});
+    return res.status(200).json({ user, status: 'SIGNED_IN' });
 
   } else {
     return tokenError();

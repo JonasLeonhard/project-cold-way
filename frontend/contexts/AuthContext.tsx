@@ -27,8 +27,8 @@ const AuthContext = createContext<AuthContextType>({
  * If the getAuth is called on the serverSide, the req.headers.cookie is send instead of the server cookies
  */
 const getAuth: (ctx: any) => Promise<Auth> = async ctx => {
-    console.log('getAuth')
-    const response = await fetch(`${process.env.NEXT_PUBLIC_CLIENT_BACKEND_URL}/auth/token`, {
+    const backendUrl = typeof window === 'undefined' ? process.env.NEXT_PUBLIC_SERVERSIDE_BACKEND_URL : process.env.NEXT_PUBLIC_CLIENT_BACKEND_URL;
+    const response = await fetch(`${backendUrl}/auth/token`, {
         method: 'POST',
         headers: {
             'Accept': 'application/json',
@@ -39,7 +39,7 @@ const getAuth: (ctx: any) => Promise<Auth> = async ctx => {
     })
     .then(response => response.json())
     .catch(err => {
-        console.error('Login error while fetching from auth server:', err);
+        console.log(`Login error while fetching from auth server (${backendUrl}):`, err);
         return { status: 'SIGNED_OUT', user: null };
     });
     return response;

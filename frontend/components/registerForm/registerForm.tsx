@@ -51,7 +51,7 @@ const IndexForm = () => {
                 name="control-hooks"
                 onFinish={onFinish}
                 method="post"
-                action={`http://${process.env.NEXT_PUBLIC_CLIENT_BACKEND_URL}/auth/register`}>
+                action={`${process.env.NEXT_PUBLIC_CLIENT_BACKEND_URL}/auth/register`}>
                 <Form.Item
                     name="email"
                     label="E-mail"
