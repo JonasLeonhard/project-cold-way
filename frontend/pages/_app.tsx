@@ -16,9 +16,9 @@ function MyApp({ Component, pageProps, auth }) {
 }
 
 MyApp.getInitialProps = async (ctx) => {
-  console.log('myapp get initial props....');
   const appProps = await App.getInitialProps(ctx);
   const auth = await getAuth(ctx.ctx);
+
   await redirectProtectedRoutesOnAuthMissing(ctx.ctx, auth);
   return { ...appProps, auth: auth };
 };

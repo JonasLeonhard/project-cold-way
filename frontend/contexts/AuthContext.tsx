@@ -3,12 +3,16 @@ import { AuthContextType, Auth } from '../@types/types';
 import { useRouter } from 'next/router';
 import { NextPageContext } from 'next';
 
+const RouteTypes = {
+    'INCLUDES': 1,
+    'EQUALS': 2
+};
 /**
  * Object Containing routes that cannot be accessed by a user without being signed in.
  * Routes inside of protectedRoutes redirect the user to the /login page.
  */
 const protectedRoutes = {
-    '/': true
+    '/room/': RouteTypes.INCLUDES
 };
 
 const AuthContext = createContext<AuthContextType>({
@@ -29,7 +33,6 @@ const AuthContext = createContext<AuthContextType>({
     logout: null,
     register: null
 });
-
 
 /**
  * Sends the users current user jwt cookie to be validated on the auth server.
@@ -55,14 +58,31 @@ const getAuth: (ctx: NextPageContext) => Promise<Auth> = async ctx => {
 }
 
 /**
- * redirects to /login if auth?.user is not set
+ * Returns whether or not the given url is contained in const protectedRoutes {}
+ */
+const isProtectedRoute = (url: string) => { 
+    let isProtected = false;   
+    Object.entries(protectedRoutes).forEach(protectedRouteEntry => {
+        if (protectedRouteEntry[1] === RouteTypes.INCLUDES && url.includes(protectedRouteEntry[0])) {
+            isProtected = true;
+        } else if (protectedRouteEntry[1] === RouteTypes.EQUALS && protectedRouteEntry[0] === url) {
+            isProtected = true;
+        }
+    });
+    return isProtected;
+};
+/**
+ * redirects to /login if auth?.user is not set &&isProtectedRoute(currentUrl) === true
+ * see const protectedRoutes in AuthContext.tsx.
  * requires: process.env.NEXT_PUBLIC_CLIENT_URL to be set.
  */
+
 const redirectProtectedRoutesOnAuthMissing = async (ctx: NextPageContext, auth: Auth) => {
     if (typeof window !== "undefined") {
-        if (!auth?.user && protectedRoutes[window.location.pathname]) {
-            console.log('redirectOnAuthMissing: protectedRoutes contains window.location.pathname');
-            window.location.assign(`${process.env.NEXT_PUBLIC_CLIENT_URL}/login`);
+        if (!window.location.pathname.includes('/login') && !auth?.user && isProtectedRoute(window.location.pathname)) {
+            console.log('csr', window.location.pathname);
+            const from = window.location.pathname;
+            window.location.assign(`${process.env.NEXT_PUBLIC_CLIENT_URL}/login?from=${from}`);
             // While the page is loading, code execution will
             // continue, so we'll await a never-resolving
             // promise to make sure our page never
@@ -70,9 +90,11 @@ const redirectProtectedRoutesOnAuthMissing = async (ctx: NextPageContext, auth: 
             await new Promise((resolve) => {});
         }
     } else {
-        if (!auth?.user && protectedRoutes[ctx.req.url]) {
-            console.log('redirectOnAuthMissing: protectedRoutes contains ctx.req.url');
-            ctx.res.writeHead(302, { Location: `${process.env.NEXT_PUBLIC_CLIENT_URL}/login` });
+        if (!ctx.asPath.includes('/login') && !auth?.user && isProtectedRoute(ctx.asPath)) {
+            console.log('ssr', ctx.asPath);
+            const from = ctx.asPath;
+            // TODO: fix asPath writeHEad causing next app to crash on second redirect?
+            ctx.res.writeHead(302, { Location: `${process.env.NEXT_PUBLIC_CLIENT_URL}/login?from=${from}` });
             ctx.res.end();
         }   
     }
@@ -102,8 +124,12 @@ const AuthProvider = ({ children, auth }: { children: any; auth: any }) => {
             return Promise.resolve(false);
         });
 
-        console.log('Login response:', response);
-        router.push(response.data);
+        console.log('Login response:', router.query);
+        if (router.query.from) {
+            router.push(router.query.from as any);
+        } else {
+            router.push(response.data);
+        }
         return Promise.resolve(true);
     };
 
@@ -164,4 +190,4 @@ const useAuthContext = (): AuthContextType => {
     return useContext(AuthContext);
 }
 
-export { AuthContext, AuthProvider, useAuthContext, getAuth, redirectProtectedRoutesOnAuthMissing };
+export { AuthContext, AuthProvider, useAuthContext, getAuth, isProtectedRoute, redirectProtectedRoutesOnAuthMissing };
