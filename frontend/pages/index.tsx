@@ -17,9 +17,8 @@ const Index = ({ data, roomUuid }: { data: ArticlesQuery, roomUuid: string }) =>
   return (
     <Default title="Jonasleonhard.de" description="Jonas Leonhard Index Page">
       <Text>
-        {console.log('auth:', auth)}
-        <h1>Lora Font</h1>
-      rendered index.tsx {data.articles.map(el => {
+        data.articles <br/> 
+        {data.articles.map(el => {
           return el.title
         })}
         <Container>
