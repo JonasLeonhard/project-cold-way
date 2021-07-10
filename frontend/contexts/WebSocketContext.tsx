@@ -42,8 +42,7 @@ const WebSocketProvider = ({ children, roomUuid }: { children: any; roomUuid: st
     }, [messages])
 
     if (!ws && typeof window !== 'undefined') {
-        const wsHost = 'localhost:4000';
-        const socket = new WebSocket(`ws://${wsHost}`) as Ws;
+        const socket = new WebSocket(process.env.NEXT_PUBLIC_CLIENT_SOCKET_URL) as Ws;
         socket.addEventListener('message', wsData => {
             try {
                 setMessages(prev => {     

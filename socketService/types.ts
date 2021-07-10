@@ -1,5 +1,4 @@
 import * as Websocket from 'ws';
-import { Sequelize } from 'sequelize';
 
 export type Rooms = {
     [uuid: string]: Array<{ client: Websocket}>;
@@ -41,10 +40,3 @@ export interface SocketServer extends Websocket.Server {
      */
     joinRoom: (ws: Socket, roomUuid: string) => Set<Socket> | undefined;
 }
-
-export type Database = {
-    sequelize: Sequelize,
-    models: {
-        [filename: string]: any
-    }
-};

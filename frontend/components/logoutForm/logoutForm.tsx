@@ -35,7 +35,7 @@ const IndexForm = () => {
                 name="control-hooks"
                 onFinish={onFinish}
                 method="post"
-                action={`${process.env.NEXT_PUBLIC_CLIENT_BACKEND_URL}/auth/logout`}>
+                action={`${process.env.NEXT_PUBLIC_CLIENT_AUTH_URL}/auth/logout`}>
                 <Form.Item>
                     <p>Are you sure you want to log out as 
                         <span className="logout-form__display-name"> {auth.auth?.user?.displayName} </span>?

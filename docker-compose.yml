@@ -9,7 +9,6 @@ services:
     volumes:
       - ./frontend/:/src/
       - /src/node_modules
-      - /src/.env
     depends_on:
       - strapi-cms
 
@@ -44,16 +43,31 @@ services:
     ports:
       - 127.0.0.1:15432:5432
 
-  express-backend: 
-    build: ./backend
-    image: project_cold_way_express-backend
-    container_name: project_cold_way_express-backend
+  auth-service: 
+    build: ./authService
+    image: project_cold_way_auth-service
+    container_name: project_cold_way_auth-service
+    environment: 
+      SEQUELIZE_DBNAME: ${SEQUELIZE_DBNAME:-postgres}
+      SEQUELIZE_USERNAME: ${SEQUELIZE_USERNAME:-postgres}
+      SEQUELIZE_PASSWORD: ${SEQUELIZE_PASSWORD:-postgres}
+      SEQUELIZE_HOST: ${SEQUELIZE_HOST:-postgres}
+      SEQUELIZE_DIALECT: ${SEQUELIZE_DIALECT:-postgres}
     ports:
       - 127.0.0.1:4000:4000
     volumes:
-      - ./backend/:/src/
+      - ./authService/:/src/
       - /src/node_modules
-      - /src/.env
+
+  socket-service: 
+    build: ./socketService
+    image: project_cold_way_socket-service
+    container_name: project_cold_way_socket-service
+    ports:
+      - 127.0.0.1:4001:4001
+    volumes:
+      - ./socketService/:/src/
+      - /src/node_modules
 
 volumes:
   postgres-strapidb-cold-way:

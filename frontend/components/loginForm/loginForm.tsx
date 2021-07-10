@@ -47,7 +47,7 @@ const IndexForm = () => {
                     name="control-hooks"
                     onFinish={onFinish}
                     method="post"
-                    action={`${process.env.NEXT_PUBLIC_CLIENT_BACKEND_URL}/auth/login`}>
+                    action={`${process.env.NEXT_PUBLIC_CLIENT_AUTH_URL}/auth/login`}>
                     <Form.Item
                         name="email"
                         label="E-mail"
@@ -92,7 +92,7 @@ const IndexForm = () => {
                             <Button type="primary" htmlType="submit" className="login-form-button">
                                 Log in
                             </Button>
-                            <Link href={`${process.env.NEXT_PUBLIC_CLIENT_BACKEND_URL}/auth/github`}>
+                            <Link href={`${process.env.NEXT_PUBLIC_CLIENT_AUTH_URL}/auth/github`}>
                                 <a>
                                     <Button icon={<GithubOutlined />} type="default" size="small" block>Sign in with Github</Button>
                                 </a>

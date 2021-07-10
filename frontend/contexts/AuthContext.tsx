@@ -39,7 +39,7 @@ const AuthContext = createContext<AuthContextType>({
  * If the getAuth is called on the serverSide, the req.headers.cookie is send instead of the server cookies
  */
 const getAuth: (ctx: NextPageContext) => Promise<Auth> = async ctx => {
-    const backendUrl = typeof window === 'undefined' ? process.env.NEXT_PUBLIC_SERVERSIDE_BACKEND_URL : process.env.NEXT_PUBLIC_CLIENT_BACKEND_URL;
+    const backendUrl = typeof window === 'undefined' ? process.env.NEXT_PUBLIC_SERVERSIDE_AUTH_URL : process.env.NEXT_PUBLIC_CLIENT_AUTH_URL;
     const response = await fetch(`${backendUrl}/auth/token`, {
         method: 'POST',
         headers: {
@@ -107,7 +107,7 @@ const AuthProvider = ({ children, auth }: { children: any; auth: any }) => {
      * values = { email: string; password: string; }
      */
     const login = async (values: Object) => {
-         const response = await fetch(`${process.env.NEXT_PUBLIC_CLIENT_BACKEND_URL}/auth/login`, {
+         const response = await fetch(`${process.env.NEXT_PUBLIC_CLIENT_AUTH_URL}/auth/login`, {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
@@ -134,7 +134,7 @@ const AuthProvider = ({ children, auth }: { children: any; auth: any }) => {
     };
 
     const logout = async () => {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_CLIENT_BACKEND_URL}/auth/logout`, {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_CLIENT_AUTH_URL}/auth/logout`, {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
@@ -158,7 +158,7 @@ const AuthProvider = ({ children, auth }: { children: any; auth: any }) => {
      * values = { email: string; password: string; confirm: string; displayName: string; businessName?: string | undefined; firstName?: string | undefined; lastName?: string | undefined; }
      */
     const register = async (values: Object) => {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_CLIENT_BACKEND_URL}/auth/register`, {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_CLIENT_AUTH_URL}/auth/register`, {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
