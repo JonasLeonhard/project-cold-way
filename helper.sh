@@ -1,5 +1,13 @@
 #!bash
 
+# Exit on Error
+set -e
+
+# Ansi color code variables
+green="\033[0;92m"
+red="\033[0;91m"
+reset="\033[0m"
+
 Help()
 {
    # Display Help
@@ -104,15 +112,36 @@ GetInput()
     start)
         docker compose start
         echo "🐲 helper.sh: application using .env file running on ...
-        - frontend: http://localhost:3000
-        - auth-service: http://localhost:4000
-        - socket-service: http://localhost:4001
-        - cms: http://localhost:1337/admin
-        - postgresDb: http://localhost:15432 (postgres, strapi)
+        - ${green}frontend${reset}: http://localhost:3000
+        - ${green}auth-service${reset}: http://localhost:4000
+        - ${green}socket-service${reset}: http://localhost:4001
+        - ${green}cms${reset}: http://localhost:1337/admin
+        - ${green}postgresDb${reset}: http://localhost:15432 (postgres, strapi)
         "
         ;;
     stop)
         docker compose stop
+        ;;
+    setup)
+        echo "🐲 helper.sh: Setting up dependencies ${green}[socketService]${reset}..."
+        cd socketService
+        yarn
+        cd ..
+        echo "🐲 helper.sh: Setting up dependencies ${green}[frontend]${reset}..."
+        cd frontend
+        yarn
+        cd ..
+        echo "🐲 helper.sh: Setting up dependencies ${green}[cms]${reset}..."
+        cd cms
+        yarn
+        cd ..
+        echo "🐲 helper.sh: Setting up dependencies ${green}[authService]${reset}..."
+        cd authService
+        yarn
+        cd ..
+        echo "🐲 helper.sh: Setting up ${green}[docker]${reset} containers"
+        yarn up
+        echo "🐲 helper.sh: ${green}Setup successful${reset}..."
         ;;
     *)
         echo "🐲 helper.sh: missing mode input, use -h for help"

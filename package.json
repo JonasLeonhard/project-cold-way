@@ -5,12 +5,13 @@
   "author": "JonasLeonhard <jonasleonhardfl@gmail.com>",
   "license": "MIT",
   "scripts": {
+    "setup": "sh helper.sh setup",
     "up": "sh helper.sh up",
     "start": "sh helper.sh start",
     "stop": "sh helper.sh stop",
-    "env:show": "echo '🐲 Docker compose: \n' && cat ./.env && echo '\n🐲 Frontend: \n' && cat ./frontend/.env && echo '\n🐲 Backend: \n' && cat ./backend/.env"
+    "env:show": "echo '🐲 Docker compose: \n' && cat ./.env && echo '\n🐲 Frontend: \n' && cat ./frontend/.env && echo '\n🐲 Auth-Service: \n' && cat ./authService/.env && echo '\n 🐲 Socket-Service: \n' && cat ./socketService/.env"
   },
   "engines": { 
-    "node" : ">=16.3.0" 
+    "node" : ">=10.16.0 <=14.x.x" 
   }
 }
