@@ -5,10 +5,10 @@
   "author": "JonasLeonhard <jonasleonhardfl@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "setup": "sh helper.sh setup",
-    "up": "sh helper.sh up",
-    "start": "sh helper.sh start",
-    "stop": "sh helper.sh stop",
+    "setup": "bash helper.sh setup",
+    "up": "bash helper.sh up",
+    "start": "bash helper.sh start",
+    "stop": "bash helper.sh stop",
     "env:show": "echo '🐲 Docker compose: \n' && cat ./.env && echo '\n🐲 Frontend: \n' && cat ./frontend/.env && echo '\n🐲 Auth-Service: \n' && cat ./authService/.env && echo '\n 🐲 Socket-Service: \n' && cat ./socketService/.env"
   },
   "engines": { 

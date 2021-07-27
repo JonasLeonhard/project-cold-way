@@ -1,0 +1,19 @@
+FROM node:16.3.0
+ENTRYPOINT ["/bin/bash"]
+
+RUN mkdir /src
+WORKDIR /src
+
+COPY . /src
+
+# Janus Build
+RUN chmod u+x ./janus.setup.sh
+RUN ./janus.setup.sh
+
+# Server Build
+RUN yarn
+RUN yarn build
+
+# Running the app | start for prod | dev for development
+EXPOSE 5555
+CMD "yarn" "dev"
