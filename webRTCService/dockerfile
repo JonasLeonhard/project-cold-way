@@ -1,19 +1,22 @@
-FROM node:16.3.0
+FROM ubuntu:bionic as build_packages
 ENTRYPOINT ["/bin/bash"]
 
 RUN mkdir /src
 WORKDIR /src
-
 COPY . /src
 
-# Janus Build
-RUN chmod u+x ./janus.setup.sh
-RUN ./janus.setup.sh
+#? Setup
+RUN chmod u+x ./janus.sh
+RUN ./janus.sh setup
 
-# Server Build
-RUN yarn
-RUN yarn build
+#? janus-gateway build
+RUN ./janus.sh build
+
+
+# Put configs in place
+# COPY conf/*.jcfg /opt/janus/etc/janus/
 
 # Running the app | start for prod | dev for development
-EXPOSE 5555
-CMD "yarn" "dev"
+EXPOSE 10080 7088 8088 8188
+USER janus
+CMD ["./janus.sh", "start"]
