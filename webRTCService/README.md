@@ -44,3 +44,7 @@ stop the container with:
 ```bash
     yarn janus:stop
 ```
+
+
+# Deployment
+Make sure the secrets inside ./conf files are changed!

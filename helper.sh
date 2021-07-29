@@ -114,7 +114,8 @@ GetInput()
         echo -e "🐲 helper.sh: application using .env file running on ...
         - ${green}frontend${reset}: http://localhost:3000
         - ${green}auth-service${reset}: http://localhost:4000
-        - ${green}socket-service${reset}: http://localhost:4001
+        - ${green}socket-service${reset}: http://localhost:4001 ws://localhost:4001
+        - ${green}janus (webRTCService)${reset}: http://localhost:8088 ws://localhost:8188
         - ${green}cms${reset}: http://localhost:1337/admin
         - ${green}postgresDb${reset}: http://localhost:15432 (postgres, strapi)
         "

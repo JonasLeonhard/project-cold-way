@@ -68,6 +68,16 @@ services:
     volumes:
       - ./socketService/:/src/
       - /src/node_modules
+    
+  web-rtc-service:
+    build: ./webRTCService
+    image: project_cold_way_janus
+    container_name: project_cold_way_janus
+    ports:
+      - 127.0.0.1:8088:8088 
+      - 127.0.0.1:8188:8188 
+    volumes:
+      - ./webRTCService/conf:/opt/janus/etc/janus
 
 volumes:
   postgres-strapidb-cold-way:
