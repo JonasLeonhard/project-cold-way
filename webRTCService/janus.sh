@@ -4,6 +4,9 @@
 # go to the main() function and comment out build_... functions
 # inside setup, to have janus be build without 
 # this dependency and feature.
+#? Janus build directory: '/opt/janus'
+#? Janus main config: '/opt/janus/etc/janus/janus.jcfg'
+#? Janus config files: '/opt/janus/etc/janus/*.jcfg'
 
 # Exit on Error
 set -e
@@ -162,6 +165,22 @@ start_janus() {
     ./janus --config=/opt/janus/etc/janus/janus.jcfg
 }
 
+docker_sync_config_to_host() {
+    read -r -p "🐲 Are you sure? This will delete/overwrite your old config files in ./conf! [y/N]" response
+    case "$response" in
+        [yY][eE][sS]|[yY]) 
+            rm -rf ./conf 
+            mkdir ./conf 
+            docker cp project_cold_way_janus:/opt/janus/etc/janus/. ./conf
+            echo -e "🐲 ${GREEN}Synced Config Files!${RESET}"
+            ;;
+        *)
+            echo -e "🐲 ${RED}...Aborted Config Snyc from Docker to Host.${RESET}"
+            exit 0
+            ;;
+    esac
+}
+
 main() {
     if [ "$1" = 'setup' ]
     then
@@ -174,13 +193,16 @@ main() {
         build_libwebsockets
 
         #? Optional: comment them out and they will not be included in the build
-        build_paho_mqtt_c
+        #build_paho_mqtt_c
         #build_rabbitmq_c
-        build_nanomsg
+        #build_nanomsg
     elif [ "$1" = 'build' ]
     then
         build_janus
         cleanup
+    elif [ "$1" = 'docker:syncConfigToHost' ]
+    then
+        docker_sync_config_to_host
     elif [ "$1" = 'start' ]
     then 
         start_janus

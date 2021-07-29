@@ -17,6 +17,6 @@ RUN ./janus.sh build
 # COPY conf/*.jcfg /opt/janus/etc/janus/
 
 # Running the app | start for prod | dev for development
-EXPOSE 10080 7088 8088 8188
+EXPOSE 8088 8188
 USER janus
 CMD ["./janus.sh", "start"]

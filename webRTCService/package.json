@@ -1,18 +1,16 @@
 {
-  "name": "webRTCService",
+  "name": "web-rtc-service",
   "version": "1.0.0",
-  "description": "WebRTC SFU Unit",
-  "main": "server.js",
+  "description": "WebRTC Docker Janus SFU Unit",
+  "main": "janus.sh",
   "license": "MIT",
   "scripts": {
-    "start": "node ./dist/server.js",
-    "dev": "yarn nodemon ./dist/server.js",
-    "build": "yarn tsc"
-  },
-  "devDependencies": {
-    "typescript": "^4.3.5"
-  },
-  "dependencies": {
-    "nodemon": "^2.0.12"
+    "janus:build": "echo -e '🐲 Build Janus Docker-Container: \n' && docker build -t project_cold_way_janus .",
+    "janus:syncConfigToHost": "echo -e '🐲 Sync config to Host Janus Docker-Container: \n' && bash janus.sh docker:syncConfigToHost",
+    "janus:up:novolumne": "echo -e '🐲 Run Janus Docker-Container: \n' && docker container run --name project_cold_way_janus project_cold_way_janus",
+    "janus:up": "echo -e '🐲 Run Janus Docker-Container: \n' && docker container run -v $(pwd)/conf:/opt/janus/etc/janus --name project_cold_way_janus project_cold_way_janus",
+    "janus:start": "echo -e '🐲 Start Janus Docker-Container: \n' && docker container start project_cold_way_janus",
+    "janus:stop": "echo -e '🐲 Stop Janus Docker-Container: \n' && docker container stop project_cold_way_janus",
+    "janus:down": "echo -e '🐲 Down Janus Docker-Container: \n' && docker container rm project_cold_way_janus"
   }
 }
