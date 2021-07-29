@@ -16,7 +16,7 @@ const StyledHeader = styled.div`
         display: flex;
         align-items: center;
         justify-content: flex-start;
-        overflow: scroll;
+        overflow: hidden;
         height: 1.5rem;
         margin-right: 1rem;
         padding: 0.5rem;

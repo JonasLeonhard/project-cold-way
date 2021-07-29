@@ -21,11 +21,9 @@ const Default: React.FC<DefaultProps> = ({ children, title, description, noindex
         <Header />
         <SeoHead title={title} description={description} noindex={noindex} nofollow={nofollow} />
         <NProgress />
-        
-        <Container className="default__container">
+        <div className="default__container">
           {children}
-        </Container>
-
+        </div>
         <Footer />
     </StyledDefault>
   )

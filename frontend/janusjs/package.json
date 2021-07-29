@@ -1,0 +1,9 @@
+{
+  "name": "janusjs",
+  "version": "1.0.0",
+  "description": "Build Janusjs of Janus-Gateway",
+  "main": "janus.js",
+  "repository": "https://github.com/meetecho/janus-gateway",
+  "author": "meetecho",
+  "license": "MIT"
+}

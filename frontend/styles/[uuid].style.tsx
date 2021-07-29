@@ -4,15 +4,15 @@ import { color, space } from './helper';
 const StyledUuidPage = styled.div`
     display: grid;
     grid-template-columns: 3fr 25rem;
-    grid-template-rows: 1fr 2rem;
-    width: 100vw;
+    grid-template-rows: 1fr 3rem;
+    width: 100%;
     height: calc(100vh - var(--header-height));
     overflow: hidden;
 
     .uuidPage__main,
     .uuidPage__options,
     .uuidPage__sub-options {
-        overflow: scroll;
+        overflow: auto;
     }
 
     .uuidPage__options {
@@ -24,6 +24,7 @@ const StyledUuidPage = styled.div`
         display: flex;
         justify-content: flex-start;
         align-items: center;
+        height: 3rem;
 
         .uuidPage__sub-options-left {
             width: 10rem;

@@ -12,7 +12,7 @@ const StyledChat = styled.div<Pick<ChatProps, 'open'>>`
 
     .chat__content {
         padding: 0 ${space('m')};
-        overflow: scroll;
+        overflow: auto;
     }
 
     .chat__controls {

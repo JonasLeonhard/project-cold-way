@@ -95,7 +95,6 @@ const redirectProtectedRoutesOnAuthMissing = async (ctx: NextPageContext, auth: 
         if (!ctx.asPath.includes('/login') && !auth?.user && isProtectedRoute(ctx.asPath)) {
             console.log('ssr', ctx.asPath);
             const from = ctx.asPath;
-            // TODO: fix asPath writeHEad causing next app to crash on second redirect?
             ctx.res.writeHead(302, { Location: `${process.env.NEXT_PUBLIC_CLIENT_URL}/login?from=${from}` });
             ctx.res.end();
             return true

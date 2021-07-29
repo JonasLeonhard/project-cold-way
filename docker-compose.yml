@@ -11,6 +11,9 @@ services:
       - /src/node_modules
     depends_on:
       - strapi-cms
+      - auth-service
+      - socket-service
+      - web-rtc-service
 
   strapi-cms:
     build: ./cms
@@ -68,7 +71,9 @@ services:
     volumes:
       - ./socketService/:/src/
       - /src/node_modules
-    
+    depends_on: 
+      - web-rtc-service
+
   web-rtc-service:
     build: ./webRTCService
     image: project_cold_way_janus
