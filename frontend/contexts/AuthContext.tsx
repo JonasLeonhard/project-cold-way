@@ -75,9 +75,10 @@ const isProtectedRoute = (url: string) => {
  * redirects to /login if auth?.user is not set &&isProtectedRoute(currentUrl) === true
  * see const protectedRoutes in AuthContext.tsx.
  * requires: process.env.NEXT_PUBLIC_CLIENT_URL to be set.
+ * returns whether the user was redirected or not.
  */
 
-const redirectProtectedRoutesOnAuthMissing = async (ctx: NextPageContext, auth: Auth) => {
+const redirectProtectedRoutesOnAuthMissing = async (ctx: NextPageContext, auth: Auth): Promise<boolean> => {
     if (typeof window !== "undefined") {
         if (!window.location.pathname.includes('/login') && !auth?.user && isProtectedRoute(window.location.pathname)) {
             console.log('csr', window.location.pathname);
@@ -88,6 +89,7 @@ const redirectProtectedRoutesOnAuthMissing = async (ctx: NextPageContext, auth: 
             // promise to make sure our page never
             // gets rendered.
             await new Promise((resolve) => {});
+            return true;
         }
     } else {
         if (!ctx.asPath.includes('/login') && !auth?.user && isProtectedRoute(ctx.asPath)) {
@@ -96,8 +98,10 @@ const redirectProtectedRoutesOnAuthMissing = async (ctx: NextPageContext, auth: 
             // TODO: fix asPath writeHEad causing next app to crash on second redirect?
             ctx.res.writeHead(302, { Location: `${process.env.NEXT_PUBLIC_CLIENT_URL}/login?from=${from}` });
             ctx.res.end();
+            return true
         }   
     }
+    return false
 };
 
 const AuthProvider = ({ children, auth }: { children: any; auth: any }) => {

@@ -19,8 +19,10 @@ MyApp.getInitialProps = async (ctx) => {
   const appProps = await App.getInitialProps(ctx);
   const auth = await getAuth(ctx.ctx);
 
-  await redirectProtectedRoutesOnAuthMissing(ctx.ctx, auth);
-  return { ...appProps, auth: auth };
+  //? Do not return a page when user has been redirected.
+  if (!await redirectProtectedRoutesOnAuthMissing(ctx.ctx, auth)) {
+    return { ...appProps, auth: auth };
+  }
 };
 
 export default MyApp
