@@ -15,6 +15,9 @@ export type WebSocketMessages = {
 
 export type WebSocketRoom = {
     uuid: string | undefined;
+    janusRoom?: {
+        id: number;
+    }
 };
 
 export type WebSocketContextType = {

@@ -18,7 +18,10 @@ const WebSocketProvider = ({ children, roomUuid }: { children: any; roomUuid: st
         mostRecent: { type: 'connecting', data: true }
     });
     const [ room, setRoom ] = useState<WebSocketRoom>({
-        uuid: undefined
+        uuid: undefined,
+        janusRoom: {
+            id: undefined
+        }
     });
 
     const handleMessage = (jsonData: WebSocketSendRequest) => {
@@ -29,6 +32,11 @@ const WebSocketProvider = ({ children, roomUuid }: { children: any; roomUuid: st
             case 'joined-room':
                 setRoom({ uuid: jsonData.data.uuid });
                 break;
+            case 'janus-created-room':
+                setRoom(prevRoom => prevRoom.janusRoom = jsonData.data.janusRoom);
+                break;
+            case 'janus-join-room':
+                setRoom(prevRoom => prevRoom.janusRoom = jsonData.data.janusRoom);
             default:
                 console.error('WebsocketContext - HandleMessageError: unhandled type: ', jsonData);
         }

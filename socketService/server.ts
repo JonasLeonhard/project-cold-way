@@ -105,6 +105,7 @@ wss.janus = {
             // a new room was created by janus
             } else if (parsed.transaction?.includes('socketService_createRoom::')) {
                 const janusRoomUUID = parsed.transaction.split('::')[1];
+                wss.rooms[janusRoomUUID].janusRoom = { id: parsed.plugindata.data.room };
                 wss.broadcast(wss.rooms[janusRoomUUID].connectedClients, { 
                         type: 'janus-created-room', 
                         data: { 
@@ -115,6 +116,7 @@ wss.janus = {
             // on close empty rooms successfully
             } else if (parsed.transaction?.includes('socketService_closeRoom::')) {
                 const janusRoomUUID = parsed.transaction.split('::')[1];
+                wss.rooms[janusRoomUUID].janusRoom = undefined;
                 console.log('Destroyed empty room: ', janusRoomUUID);
             }
         });
@@ -128,7 +130,7 @@ wss.janus = {
                     "transaction": "socketService_keepalive"
                 }));
             }
-        }, 10000);// <- change this interval according to janus.jcfg session_timeout
+        }, 100000);// <- change this interval according to janus.jcfg session_timeout
     },
     establishSession: () => {
         console.log('🐲 Janus WebRTC - establish session ...');
@@ -186,13 +188,19 @@ wss.joinRoom = (ws: Socket, roomUuid: string): Set<Socket> | undefined => {
         ws.deploy({ type: 'error', data: 'JoinRoomError: Invalid uuid, has to be a valid uuid.' });
         return undefined;
     }
-    //? Room exists:
+
+    //? Check if room exists
     if (wss.rooms[roomUuid]) {
+        //? does the room have a janus room already?
+        if(wss.rooms[roomUuid]?.janusRoom) {
+            ws.deploy({ type: 'janus-join-room', data: { janusRoom: wss.rooms[roomUuid].janusRoom } });
+        } else {
+            wss.janus.createRoom(roomUuid);
+        }
         return wss.rooms[roomUuid].connectedClients.add(ws)
     }
-    //? Create the room:
+    //? Create a new socket room + janus room:
     wss.rooms[roomUuid] = { connectedClients: new Set([ws]), janusRoom: undefined };
-    //? Set janus to create the Webrtc room
     wss.janus.createRoom(roomUuid);
     return wss.rooms[roomUuid].connectedClients;
 };
