@@ -76,8 +76,8 @@ services:
 
   web-rtc-service:
     build: ./webRTCService
-    image: project_cold_way_janus
-    container_name: project_cold_way_janus
+    image: project_cold_way_web-rtc-service
+    container_name: project_cold_way_web-rtc-service
     ports:
       - 127.0.0.1:8088:8088 
       - 127.0.0.1:8188:8188 

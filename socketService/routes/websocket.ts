@@ -35,8 +35,8 @@ function joinRoom(ws: Socket, wss: SocketServer, request: SocketMessage) {
 
 function exitRoom(ws: Socket, wss: SocketServer, request: SocketMessage) {
   if (ws.inRoomUuid) {
-    wss.rooms[ws.inRoomUuid]?.delete(ws);
-    wss.broadcast(wss.rooms[ws.inRoomUuid], { type: 'user-exited-room', data: ws.uuid }, ws);
+    wss.rooms[ws.inRoomUuid]?.connectedClients?.delete(ws);
+    wss.broadcast(wss.rooms[ws.inRoomUuid].connectedClients, { type: 'user-exited-room', data: ws.uuid }, ws);
     ws.inRoomUuid = undefined;
   }
   ws.deploy({ type: 'exit-room', data: { success: !ws.inRoomUuid }});
@@ -49,7 +49,7 @@ function messageRoom(ws: Socket, wss: SocketServer, request: SocketMessage) {
   if (!ws.inRoomUuid) {
     ws.deploy({ type: 'error', data: 'MessageRoomError: Socket is not in a room. Use type: "join-room" first, to broadcast a message to a room'});
   } else {
-    wss.broadcast(wss.rooms[ws.inRoomUuid], { type: request.type, data: { message: request.data, sender: ws.uuid }}, ws);
+    wss.broadcast(wss.rooms[ws.inRoomUuid].connectedClients, { type: request.type, data: { message: request.data, sender: ws.uuid }}, ws);
   }
   ws.deploy({ type: 'messaged-room', data: request.data });
 }

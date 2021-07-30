@@ -1,17 +1,17 @@
 import adapter from 'webrtc-adapter';
-import Janus, { JanusJS } from 'janusjs';
+import Janus from 'janusjs';
 import { SERVER } from './janus.config';
-
+import { Auth, WebSocketRoom } from '../../../@types/types';
 
 /**
  * (1) Initialize Janus.js with webrtc-adapter
- * use .then(uuid) to connectJanus(uuid)
+ * @resolve .then(initSession) to connect to janus Server
  * .catch(errmsg: string) if webrtc is not supported by the browser
  */
 export const initJanus = (): Promise<void> => {
     return new Promise((resolve, reject) => {
         Janus.init({
-            debug: 'all',
+            debug: false,
             dependencies: Janus.useDefaultDependencies({ adapter }),
             callback: () => {
               console.log('janus.ts initJanus successful');
@@ -25,6 +25,10 @@ export const initJanus = (): Promise<void> => {
     });
 };
 
+/**
+ * (2) Connect Janus.js to the janus Server, requires initJanus to be run first.
+ * @resolve .then((janus: Janus) => {...})
+ */
 export const initSession = (): Promise<Janus> => {
     return new Promise((resolve, reject) => {
         const janus = new Janus({
@@ -46,13 +50,25 @@ export const initSession = (): Promise<Janus> => {
     });
 }
 
-export const attachVideoRoom = (janus: Janus, roomUuid: string): Promise<void> => {
+/**
+ * (3). Attach janus to the video room with roomUuid,
+ * pass in the janus instance created in initSession.
+ */
+export const attachVideoRoom = (janus: Janus, wsRoom: WebSocketRoom, auth: Auth): Promise<void> => {
     return new Promise((resolve, reject) => {
         janus.attach({
             plugin: "janus.plugin.videoroom",
-            opaqueId: roomUuid,
+            opaqueId: wsRoom.uuid,
             success: (pluginHandle) => {
-                console.log('janus.ts attachvideoRoom success');
+                console.log('janus.ts attachvideoRoom success.', { plugin: pluginHandle.getPlugin(), id: pluginHandle.getId() });
+                //? join a room
+                const joinRequest = {
+                    request: 'join',
+                    room: wsRoom.uuid,
+                    ptype: 'publisher',
+                    display: auth.user.displayName
+                }
+                pluginHandle.send( { message: joinRequest });
                 resolve();
             },
             error: (error) => {

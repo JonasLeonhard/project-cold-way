@@ -3,7 +3,7 @@ import * as express from 'express';
 import * as createError from 'http-errors';
 import * as Websocket from 'ws';
 import { v4 as uuidV4, validate } from 'uuid';
-import { Socket, SocketMessage, SocketServer } from './types';
+import { Socket, SocketMessage, SocketServer, JanusRoom } from './types';
 
 const cors = require('cors');
 
@@ -17,7 +17,7 @@ app.set('port', process.env.PORT || 4001);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors({
-    origin: process.env.CLIENT_URL, 
+    origin: process.env.CLIENT_URL,
     credentials: true
 }));
 
@@ -63,16 +63,115 @@ wss.broadcast = (sockets: Set<Socket>, socketMessage: SocketMessage, broadcastin
     });
 };
 wss.rooms = {};
+
+//? JANUS SETUP
+wss.janus = {
+    /**
+     * Create a Janus Video Room, returns the roomId
+     */
+    ws: undefined, // undefined if there is no webrtc_server available
+    connected: false, // wether or not the socket connection is open
+    sessionId: null, // id of the session of janus
+    handleId: null, // id of the plugin handle of janus
+    init: () => {
+        wss.janus.ws = new Websocket(process.env.WEBRTC_SERVER || 'ws://localhost:8188', 'janus-protocol');
+        
+        wss.janus.ws?.on('open', () => {
+            wss.janus.connected = true;
+            console.log('🐲 Janus WebRTC - Websocket adapter Connected! using', process.env.WEBRTC_SERVER || 'ws://localhost:8188');
+        });
+        wss.janus.ws?.on('close', () => {
+            console.log('🐲 Janus WebRTC - Websocket adapter connection dropped. Is your janus instance running? using:', process.env.WEBRTC_SERVER || 'ws://localhost:8188')
+            wss.janus.connected = false;
+            wss.janus.sessionId = null;
+            wss.janus.handleId = null;
+        });
+        wss.janus.ws?.on('error', (err) => {
+            console.log('🐲 Continuing without Janus WebRTC adapter Support. This is most likely because the connection to the janus instance could not be established. Error:', err, " using:", process.env.WEBRTC_SERVER || 'ws://localhost:8188');
+        });
+
+        // Handle Incoming messages from janus server
+        wss.janus.ws?.on('message', (data: any) => {
+            console.log('got message', data);
+            // Janus Session is established, connect to plugin
+            if (data.transaction === 'socketService_establishSession') {
+                wss.janus.sessionId = data.data.id;
+                wss.janus.connectSessionToVideoPlugin();
+            // connected to plugin successfully
+            } else if (data.transaction === 'socketService_connectSessionToVideoPlugin') {
+                wss.janus.handleId = data.data.id;
+            // a new room was created by janus
+            } else if (data.transaction.includes('socketService_createRoom::')) {
+                const janusRoomUUID = data.transaction.split('::')[1];
+                wss.broadcast(wss.rooms[janusRoomUUID].connectedClients, { 
+                        type: 'janus-created-room', 
+                        data: { 
+                            uuid: janusRoomUUID, 
+                            janusRoomId: data.room 
+                        }
+                });
+            }
+        });
+
+        // send keepalive, otherwise janus will drop the session.
+        setInterval(() => {
+            if (wss.janus.sessionId) {
+                wss.janus.ws?.send(JSON.stringify({
+                    "janus": "keepalive",
+                    "session_id": wss.janus.sessionId,
+                    "transaction": "socketService_keepalive"
+                }));
+            }
+        }, 5);// <- change this interval according to janus.jcfg session_timeout
+    },
+    establishSession: () => {
+        wss.janus.ws?.send(JSON.stringify({
+            "janus": "create",
+            "transaction": "socketService_establishSession"
+        }));
+    },
+    connectSessionToVideoPlugin: () => {
+        wss.janus.ws?.send(JSON.stringify({
+            "janus": "attach",
+            "session_id": wss.janus.sessionId,
+            "plugin": "janus.plugin.videoroom",
+            "transaction": "socketService_connectSessionToVideoPlugin"
+        }));
+    },
+    createRoom: (uuid: string) => {
+        wss.janus.ws?.send(JSON.stringify({
+            "janus": "message",
+            "session_id": wss.janus.sessionId,
+            "handle_id": wss.janus.handleId,
+            "transaction": `socketService_createRoom::${uuid}`,
+            "body": {
+                "admin_key": process.env.JANUS_ADMIN_KEY,
+                "request": "create",
+                "permanent": false,
+                "description": `Room for UUID::${uuid}`,
+                "pin": uuid,
+                "is_private": true
+            }
+        }));
+    }
+};
+wss.janus.init();
+
+
 wss.joinRoom = (ws: Socket, roomUuid: string): Set<Socket> | undefined => {
     if (!validate(roomUuid)) {
         ws.deploy({ type: 'error', data: 'JoinRoomError: Invalid uuid, has to be a valid uuid.' });
         return undefined;
     }
+    //? Room exists:
     if (wss.rooms[roomUuid]) {
-        return wss.rooms[roomUuid].add(ws)
+        return wss.rooms[roomUuid].connectedClients.add(ws)
     }
-    wss.rooms[roomUuid] = new Set([ws]);
-    return wss.rooms[roomUuid];
+    //? Create the room:
+    wss.rooms[roomUuid] = { connectedClients: new Set([ws]), janusRoom: undefined };
+    //? Set janus to create the Webrtc room
+    wss.janus.createRoom(roomUuid);
+    return wss.rooms[roomUuid].connectedClients;
 };
 
 wss.on('connection', (ws: Socket) => {
@@ -102,8 +201,8 @@ wss.on('connection', (ws: Socket) => {
 
     ws.on('close', () => {
         if (ws.inRoomUuid) {
-            wss.rooms[ws.inRoomUuid]?.delete(ws);
-            wss.broadcast(wss.rooms[ws.inRoomUuid], { type: 'close', data: ws.uuid });
+            wss.rooms[ws.inRoomUuid]?.connectedClients?.delete(ws);
+            wss.broadcast(wss.rooms[ws.inRoomUuid].connectedClients, { type: 'close', data: ws.uuid });
         }
     });
 

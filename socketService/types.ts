@@ -33,10 +33,45 @@ export interface SocketServer extends Websocket.Server {
      */
     broadcast: (sockets: Set<Socket>, socketMessage: SocketMessage, broadcasting?: Socket) => void;
     clients: Set<Socket>
-    rooms: { [uuid: string]: Set<Socket> };
+    rooms: { 
+        [uuid: string]: {
+            connectedClients: Set<Socket>,
+            janusRoom?: JanusRoom 
+        }
+    };
     /**
      * Adds Socket to wss.rooms[roomUuid] or creates a new room if it doesn't exist yet. 
      * @return {boolean} Returns the joined room or undefined if the uuid is not valid.
      */
     joinRoom: (ws: Socket, roomUuid: string) => Set<Socket> | undefined;
+    janus: WssJanus
+}
+
+//? Janus Types
+
+export type WssJanus = {
+    ws: Websocket | undefined;
+    connected: boolean;
+    sessionId: number | null;
+    handleId: number | null;
+    init: () => void;
+    establishSession: () => void;
+    connectSessionToVideoPlugin: () => void;
+    createRoom: (uuid: string) => void;
+};
+
+export type JanusRoom = {
+    room: number;
+    description: string;
+    pin_required: boolean;
+    max_publishers: number;
+    bitrate: string;
+    bitrate_cap: boolean;
+    fir_freq : string;
+    audiocodec: string;
+    videocodec: string;
+    record: boolean;
+    record_dir: string;
+    lock_record: boolean;
+    num_participants: number;
 }
