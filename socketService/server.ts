@@ -79,6 +79,7 @@ wss.janus = {
         wss.janus.ws?.on('open', () => {
             wss.janus.connected = true;
             console.log('🐲 Janus WebRTC - Websocket adapter Connected! using', process.env.WEBRTC_SERVER || 'ws://localhost:8188');
+            wss.janus.establishSession();
         });
         wss.janus.ws?.on('close', () => {
             console.log('🐲 Janus WebRTC - Websocket adapter connection dropped. Is your janus instance running? using:', process.env.WEBRTC_SERVER || 'ws://localhost:8188')
@@ -92,24 +93,29 @@ wss.janus = {
 
         // Handle Incoming messages from janus server
         wss.janus.ws?.on('message', (data: any) => {
-            console.log('got message', data);
+            const parsed = JSON.parse(data);
+            console.log('got message', parsed);
             // Janus Session is established, connect to plugin
-            if (data.transaction === 'socketService_establishSession') {
-                wss.janus.sessionId = data.data.id;
+            if (parsed.transaction === 'socketService_establishSession') {
+                wss.janus.sessionId = parsed.data.id;
                 wss.janus.connectSessionToVideoPlugin();
             // connected to plugin successfully
-            } else if (data.transaction === 'socketService_connectSessionToVideoPlugin') {
-                wss.janus.handleId = data.data.id;
+            } else if (parsed.transaction === 'socketService_connectSessionToVideoPlugin') {
+                wss.janus.handleId = parsed.data.id;
             // a new room was created by janus
-            } else if (data.transaction.includes('socketService_createRoom::')) {
-                const janusRoomUUID = data.transaction.split('::')[1];
+            } else if (parsed.transaction?.includes('socketService_createRoom::')) {
+                const janusRoomUUID = parsed.transaction.split('::')[1];
                 wss.broadcast(wss.rooms[janusRoomUUID].connectedClients, { 
                         type: 'janus-created-room', 
                         data: { 
                             uuid: janusRoomUUID, 
-                            janusRoomId: data.room 
+                            janusRoom: { id: parsed.plugindata.data.room }
                         }
                 });
+            // on close empty rooms successfully
+            } else if (parsed.transaction?.includes('socketService_closeRoom::')) {
+                const janusRoomUUID = parsed.transaction.split('::')[1];
+                console.log('Destroyed empty room: ', janusRoomUUID);
             }
         });
 
@@ -122,15 +128,17 @@ wss.janus = {
                     "transaction": "socketService_keepalive"
                 }));
             }
-        }, 5);// <- change this interval according to janus.jcfg session_timeout
+        }, 10000);// <- change this interval according to janus.jcfg session_timeout
     },
     establishSession: () => {
+        console.log('🐲 Janus WebRTC - establish session ...');
         wss.janus.ws?.send(JSON.stringify({
             "janus": "create",
             "transaction": "socketService_establishSession"
         }));
     },
     connectSessionToVideoPlugin: () => {
+        console.log('🐲 Janus WebRTC - connect to video plugin handle ...');
         wss.janus.ws?.send(JSON.stringify({
             "janus": "attach",
             "session_id": wss.janus.sessionId,
@@ -139,6 +147,7 @@ wss.janus = {
         }));
     },
     createRoom: (uuid: string) => {
+        console.log('called janus createRoom', wss.janus.handleId, wss.janus.sessionId);
         wss.janus.ws?.send(JSON.stringify({
             "janus": "message",
             "session_id": wss.janus.sessionId,
@@ -151,6 +160,20 @@ wss.janus = {
                 "description": `Room for UUID::${uuid}`,
                 "pin": uuid,
                 "is_private": true
+            }
+        }));
+    },
+    closeRoom: (uuid: string) => {
+        const janusRoomId = wss.rooms[uuid]?.janusRoom?.id
+        wss.janus.ws?.send(JSON.stringify({
+            "janus": "message",
+            "session_id": wss.janus.sessionId,
+            "handle_id": wss.janus.handleId,
+            "transaction": `socketService_closeRoom::${uuid}`,
+            "body": {
+                "admin_key": process.env.JANUS_ADMIN_KEY,
+                "request": "destroy",
+                "room": janusRoomId
             }
         }));
     }
@@ -203,7 +226,14 @@ wss.on('connection', (ws: Socket) => {
         if (ws.inRoomUuid) {
             wss.rooms[ws.inRoomUuid]?.connectedClients?.delete(ws);
             wss.broadcast(wss.rooms[ws.inRoomUuid].connectedClients, { type: 'close', data: ws.uuid });
+            
+            // send close request to janus if room is empty now
+            if (wss.rooms[ws.inRoomUuid]?.connectedClients.size === 0) {
+                // @ts-ignore
+                wss.janus.closeRoom(ws.inRoomUuid);
+            }
         }
+
     });
 
     ws.on('error', (err: string) => {

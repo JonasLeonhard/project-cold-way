@@ -58,20 +58,9 @@ export type WssJanus = {
     establishSession: () => void;
     connectSessionToVideoPlugin: () => void;
     createRoom: (uuid: string) => void;
+    closeRoom: (uuid: string) => void;
 };
 
 export type JanusRoom = {
-    room: number;
-    description: string;
-    pin_required: boolean;
-    max_publishers: number;
-    bitrate: string;
-    bitrate_cap: boolean;
-    fir_freq : string;
-    audiocodec: string;
-    videocodec: string;
-    record: boolean;
-    record_dir: string;
-    lock_record: boolean;
-    num_participants: number;
+    id: number;
 }
