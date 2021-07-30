@@ -30,13 +30,14 @@ const WebSocketProvider = ({ children, roomUuid }: { children: any; roomUuid: st
                 ws.send(JSON.stringify({ type: 'join-room', data: { roomUuid }}))
                 break;
             case 'joined-room':
-                setRoom({ uuid: jsonData.data.uuid });
+                setRoom(prevRoom => ({ ...prevRoom, uuid: jsonData.data.uuid }));
                 break;
             case 'janus-created-room':
-                setRoom(prevRoom => prevRoom.janusRoom = jsonData.data.janusRoom);
+                setRoom(prevRoom => ({ ...prevRoom, janusRoom: jsonData.data.janusRoom }));
                 break;
             case 'janus-join-room':
-                setRoom(prevRoom => prevRoom.janusRoom = jsonData.data.janusRoom);
+                console.log('join room', jsonData);
+                setRoom(prevRoom => ({ ...prevRoom, janusRoom: jsonData.data.janusRoom }));
             default:
                 console.error('WebsocketContext - HandleMessageError: unhandled type: ', jsonData);
         }

@@ -5,7 +5,6 @@
   "author": "JonasLeonhard <jonasleonhardfl@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "setup": "bash helper.sh setup",
     "up": "bash helper.sh up",
     "start": "bash helper.sh start",
     "stop": "bash helper.sh stop",

@@ -1,29 +1,37 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import StyledWebRTC from './webRTC.style';
 import { useWebSocketContext } from '../../contexts/WebSocketContext';
-import { initJanus, initSession, attachVideoRoom } from './helper/janus';
+import { StreamManager } from './helper/janus';
 import { useAuthContext } from '../../contexts/AuthContext';
 
 type WebRTCProps = {
-    uuid: string;
+  uuid: string;
 };
 
 const WebRTC: React.FC<WebRTCProps> = ({ uuid }: WebRTCProps) => {
   const { ws, messages, room } = useWebSocketContext();
   const { auth } = useAuthContext();
-  
+  const [janusInitialized, setJanusInitialized] = useState(false);
+  const [showConsentDialog, setShowConsentDialog] = useState(false);
+
   useEffect(() => {
     //? Only initialize janus in the browser
-    if (typeof window !== 'undefined' && room.uuid && room.uuid.length > 0) {
-      initJanus().then(initSession).then(janus => {
-        attachVideoRoom(janus, room, auth);
-      });
+    if (!janusInitialized && typeof window !== 'undefined' && room.uuid && room.uuid.length > 0 && room?.janusRoom?.id) {
+      new StreamManager(room, auth, setShowConsentDialog);
+      setJanusInitialized(true);
+    } else {
+      console.log('could not initialize janus - room:', room, 'janus initialized already?:', janusInitialized);
     }
   }, [room]);
 
   return (
     <StyledWebRTC>
-        webRTC... uuid: {uuid}
+      webRTC... uuid: {uuid}
+
+      {showConsentDialog &&
+        <div>
+          consent dialog...
+        </div>}
     </StyledWebRTC>
   )
 }

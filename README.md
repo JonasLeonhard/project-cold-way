@@ -40,8 +40,12 @@ To display the default values run:
 $ yarn up       # build containers
 $ yarn start    # start containers 
 $ yarn stop     # stop containers
-
 ```
+
+then go to localhost:1337/admin and create a strapi admin account.
+Then go to settings->roles(Users & Permissions plugin)->check count, find, findone and save.
+
+
 [Local] To run this project, install it locally using yarn:
 - requirements: setup postgres database at localhost:5432 -> see defaults at /cms/config/database.js
 - install dependencies in /frontend & /cms (yarn)

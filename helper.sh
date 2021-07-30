@@ -107,7 +107,7 @@ GetInput()
         fi
         ;;
     up)
-        docker compose up
+        docker compose up -d
         ;;
     start)
         docker compose start
@@ -122,27 +122,6 @@ GetInput()
         ;;
     stop)
         docker compose stop
-        ;;
-    setup)
-        echo -e "🐲 helper.sh: Setting up dependencies ${green}[socketService]${reset}..."
-        cd socketService
-        yarn
-        cd ..
-        echo -e "🐲 helper.sh: Setting up dependencies ${green}[frontend]${reset}..."
-        cd frontend
-        yarn
-        cd ..
-        echo -e "🐲 helper.sh: Setting up dependencies ${green}[cms]${reset}..."
-        cd cms
-        yarn
-        cd ..
-        echo -e "🐲 helper.sh: Setting up dependencies ${green}[authService]${reset}..."
-        cd authService
-        yarn
-        cd ..
-        echo -e "🐲 helper.sh: Setting up ${green}[docker]${reset} containers"
-        yarn up
-        echo -e "🐲 helper.sh: ${green}Setup successful${reset}..."
         ;;
     *)
         echo -e "🐲 helper.sh: missing mode input, use -h for help"
