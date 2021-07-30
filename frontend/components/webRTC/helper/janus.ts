@@ -60,13 +60,15 @@ export const attachVideoRoom = (janus: Janus, wsRoom: WebSocketRoom, auth: Auth)
             plugin: "janus.plugin.videoroom",
             opaqueId: wsRoom.uuid,
             success: (pluginHandle) => {
+                console.log('debug', wsRoom);
                 console.log('janus.ts attachvideoRoom success.', { plugin: pluginHandle.getPlugin(), id: pluginHandle.getId() });
                 //? join a room
                 const joinRequest = {
                     request: 'join',
-                    room: wsRoom.uuid,
+                    room: wsRoom.janusRoom.id,
                     ptype: 'publisher',
-                    display: auth.user.displayName
+                    display: auth.user.displayName,
+                    pin: wsRoom.uuid
                 }
                 pluginHandle.send( { message: joinRequest });
                 resolve();
