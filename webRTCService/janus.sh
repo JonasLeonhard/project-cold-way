@@ -185,8 +185,9 @@ start_janus() {
     echo -e "🐲  Starting Janus..." && env
     cd /opt/janus/bin/
     # for more start configs see ./janus --help
+    # --nat_1_1_mapping $JANUS_NAT_1_1_MAPPING \
+
     ./janus \
-    --nat_1_1_mapping $JANUS_NAT_1_1_MAPPING \
     --debug_level $JANUS_DEBUG_LEVEL \
     --rtp_port_range $JANUS_RTP_PORT_RANGE \
     --stun_server ${JANUS_STUN_SERVER}:${JANUS_STUN_PORT} \
