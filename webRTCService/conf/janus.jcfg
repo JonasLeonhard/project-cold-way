@@ -286,7 +286,7 @@ nat: {
 	# Multiple public IP addresses can be specified as a comma separated list
 	# if the Janus is deployed in a DMZ between two 1-1 NAT for internal and
 	# external users.
-	#nat_1_1_mapping = "1.2.3.4"
+	nat_1_1_mapping = "3.124.231.234"
 	#keep_private_host = true
 
 	# You can configure a TURN server in two different ways: specifying a
