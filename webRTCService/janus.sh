@@ -142,21 +142,13 @@ build_paho_mqtt_c() {
     make install
 }
 
-configure_janus() {
-    # you can add any config in a .jcfg file here with --CONFIGURATION=SOMETHING
-    # also see ./configure --help
-    ${BUILD_SRC}/janus-gateway/configure \
-    --prefix=/opt/janus \
-    /
-}
-
 build_janus() {
     echo -e "🐲 Building ${GREEN}Janus-Gateway${RESET}"
     git clone https://github.com/meetecho/janus-gateway.git "${BUILD_SRC}"/janus-gateway \
     
     cd "${BUILD_SRC}"/janus-gateway
     ./autogen.sh
-    configure_janus #<- build a default config, gets overridden in start
+    ./configure --prefix=/opt/janus #<- build a default config in /opt/janus
     make
     make install
     # folder ownership
