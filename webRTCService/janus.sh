@@ -21,7 +21,8 @@ BUILD_SRC="$(pwd)/janusSH_build_src"
 
 install_janus_user() {
     echo -e "🐲 Creating ${GREEN}<janus>${RESET} User"
-    /usr/sbin/groupadd -r janus && /usr/sbin/useradd -r -g janus janus
+    /usr/sbin/groupadd -r janus || echo -e "...skipping, as usergroup is already created."
+    /usr/sbin/useradd -r -g janus janus || echo -e "...skipping, as user is already created."
 }
 
 install_apt_get() {
