@@ -19,19 +19,6 @@ RESET="\033[0m"
 # Build Arguments
 BUILD_SRC="$(pwd)/janusSH_build_src"
 
-setup_env() {
-    echo -e "🐲 Setup & Parsing ${GREEN}.env File${RESET}"
-    if [ ! -f .env ]
-    then
-        echo -e "🐲 Setup Error: ${RED}.env file is missing. Please add one${RESET}. "
-        exit 0;
-    else 
-        # Load Environment Variables
-        export "$(cat .env | grep -v '#' | awk '/=/ {print $1}')"
-        echo -e "$(cat .env)"
-    fi
-}
-
 install_janus_user() {
     echo -e "🐲 Creating ${GREEN}<janus>${RESET} User"
     /usr/sbin/groupadd -r janus || echo -e "...skipping, as usergroup is already created."
@@ -179,13 +166,7 @@ start_janus() {
     # for more start configs see ./janus --help
     # --nat_1_1_mapping $JANUS_NAT_1_1_MAPPING \
 
-    ./janus \
-    --debug-level=$JANUS_DEBUG_LEVEL \
-    --rtp-port-range=$JANUS_RTP_PORT_RANGE \
-    --stun-server=${JANUS_STUN_SERVER}:${JANUS_STUN_PORT} \
-    --server-name=$JANUS_SERVER_NAME \
-    --session-timeout=${JANUS_SESSION_TIMEOUT} \
-    /
+    ./janus
 }
 
 docker_sync_config_to_host() {
@@ -205,8 +186,6 @@ docker_sync_config_to_host() {
 }
 
 main() {
-    setup_env
-
     if [ "$1" = 'setup' ]
     then
         #? Required!
