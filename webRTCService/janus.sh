@@ -19,6 +19,19 @@ RESET="\033[0m"
 # Build Arguments
 BUILD_SRC="$(pwd)/janusSH_build_src"
 
+setup_env() {
+    echo -e "🐲 Setup & Parsing ${GREEN}.env File${RESET}"
+    if [ ! -f .env ]
+    then
+        echo -e "🐲 Setup Error: ${RED}.env file is missing. Please add one${RESET}. "
+        exit 0;
+    else 
+        # Load Environment Variables
+        export "$(cat .env | grep -v '#' | awk '/=/ {print $1}')"
+        echo -e "$(cat .env)"
+    fi
+}
+
 install_janus_user() {
     echo -e "🐲 Creating ${GREEN}<janus>${RESET} User"
     /usr/sbin/groupadd -r janus || echo -e "...skipping, as usergroup is already created."
@@ -173,14 +186,14 @@ start_janus() {
     cd /opt/janus/bin/
     # for more start configs see ./janus --help
     ./janus \
-    --nat_1_1_mapping $NAT_1_1_MAPPING \
-    --debug_level $DEBUG_LEVEL \
-    --rtp_port_range $RTP_PORT_RANGE \
-    --stun_server ${STUN_SERVER}:${STUN_PORT} \
-    --server_name $SERVER_NAME \
-    --ws_port $WS_PORT \
-    --session-timeout=${SESSION_TIMEOUT} \
-    --admin_key $ADMIN_KEY \
+    --nat_1_1_mapping $JANUS_NAT_1_1_MAPPING \
+    --debug_level $JANUS_DEBUG_LEVEL \
+    --rtp_port_range $JANUS_RTP_PORT_RANGE \
+    --stun_server ${JANUS_STUN_SERVER}:${JANUS_STUN_PORT} \
+    --server_name $JANUS_SERVER_NAME \
+    --ws_port $JANUS_WS_PORT \
+    --session-timeout=${JANUS_SESSION_TIMEOUT} \
+    --admin_key $JANUS_ADMIN_KEY \
     /
 }
 
@@ -201,6 +214,8 @@ docker_sync_config_to_host() {
 }
 
 main() {
+    setup_env
+
     if [ "$1" = 'setup' ]
     then
         #? Required!
