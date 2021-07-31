@@ -17,8 +17,7 @@ RED="\033[0;91m"
 RESET="\033[0m"
 
 # Build Arguments
-BUILD_SRC="/usr/local/src"
-JANUS_CONFIG_OPTIONS=""
+BUILD_SRC="$(pwd)/janusSH_build_src"
 
 install_janus_user() {
     echo -e "🐲 Creating ${GREEN}<janus>${RESET} User"
@@ -129,13 +128,21 @@ build_paho_mqtt_c() {
     make install
 }
 
+configure_janus() {
+    # you can add any config in a .jcfg file here with --CONFIGURATION=SOMETHING
+    # also see ./configure --help
+    ${BUILD_SRC}/janus-gateway/configure \
+    --prefix=/opt/janus \
+    /
+}
+
 build_janus() {
     echo -e "🐲 Building ${GREEN}Janus-Gateway${RESET}"
     git clone https://github.com/meetecho/janus-gateway.git "${BUILD_SRC}"/janus-gateway \
     
     cd "${BUILD_SRC}"/janus-gateway
     ./autogen.sh
-    ./configure --prefix=/opt/janus "${JANUS_CONFIG_OPTIONS}"
+    configure_janus #<- build a default config, gets overridden in start
     make
     make install
     # folder ownership
@@ -160,9 +167,20 @@ cleanup() {
     # rm -rf /var/lib/apt/*
 }
 
-start_janus() {
-    cd /opt/janus/bin
-    ./janus --config=/opt/janus/etc/janus/janus.jcfg
+start_janus() { 
+    echo -e "🐲  Starting Janus..." && env
+    cd /opt/janus/bin/
+    # for more start configs see ./janus --help
+    ./janus \
+    --nat_1_1_mapping $NAT_1_1_MAPPING \
+    --debug_level $DEBUG_LEVEL \
+    --rtp_port_range $RTP_PORT_RANGE \
+    --stun_server ${STUN_SERVER}:${STUN_PORT} \
+    --server_name $SERVER_NAME \
+    --ws_port $WS_PORT \
+    --session-timeout=${SESSION_TIMEOUT} \
+    --admin_key $ADMIN_KEY \
+    /
 }
 
 docker_sync_config_to_host() {
