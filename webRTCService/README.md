@@ -61,8 +61,8 @@ Make sure the secrets inside ./conf files are changed!
 
     ###### WITH APT-GET? #####
     sudo apt-get install janus #install janus package
-    cd /usr/share/janus && mdkir certs && cd certs
-    sudo openssl req -x509 -sha256 -nodes -days 365 -newkey rsa:2048 -keyout mykey.pem -out mycert.pem
+    cd /etc/ssl/certs
+    sudo openssl req -x509 -sha256 -nodes -days 365 -newkey rsa:2048 -keyout /etc/ssl/private/ssl-cert-snakeoil.key -out /etc/ssl/certs/ssl-cert-snakeoil.pem
 
     # if janus cant open the file, grant read + write permission to file
     chmod -R 0777 mycert.pem

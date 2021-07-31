@@ -180,13 +180,11 @@ start_janus() {
     # --nat_1_1_mapping $JANUS_NAT_1_1_MAPPING \
 
     ./janus \
-    --debug_level $JANUS_DEBUG_LEVEL \
-    --rtp_port_range $JANUS_RTP_PORT_RANGE \
-    --stun_server ${JANUS_STUN_SERVER}:${JANUS_STUN_PORT} \
-    --server_name $JANUS_SERVER_NAME \
-    --ws_port $JANUS_WS_PORT \
+    --debug-level $JANUS_DEBUG_LEVEL \
+    --rtp-port-range $JANUS_RTP_PORT_RANGE \
+    --stun-server ${JANUS_STUN_SERVER}:${JANUS_STUN_PORT} \
+    --server-name $JANUS_SERVER_NAME \
     --session-timeout=${JANUS_SESSION_TIMEOUT} \
-    --admin_key $JANUS_ADMIN_KEY \
     /
 }
 
