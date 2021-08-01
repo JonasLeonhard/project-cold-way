@@ -12,7 +12,7 @@ import {
     VideoCameraTwoTone
 } from '@ant-design/icons';
 import { theme } from '../../styles/helper';
-
+import { dispatchGlobalEvent } from '../../components/webRTC/helper/janus';
 
 const UuidPage = ({ uuid }: { uuid: string }) => {
     const { TabPane } = Tabs;
@@ -45,7 +45,11 @@ const UuidPage = ({ uuid }: { uuid: string }) => {
                                 title="Show Details."
                                 placement="top"
                             >
-                                <QuestionCircleTwoTone twoToneColor={theme.colors.info[100]} className="uuidPage__icon"/>
+                                <QuestionCircleTwoTone 
+                                twoToneColor={theme.colors.info[100]} 
+                                className="uuidPage__icon"
+                                onClick={() => {dispatchGlobalEvent({ event: 'janus-ui', data: { handle: 'details-toggle', state: 'off' }})}}
+                                />
                             </Tooltip>
                         </div>
                         <div className="uuidPage__sub-options-right">
@@ -56,7 +60,9 @@ const UuidPage = ({ uuid }: { uuid: string }) => {
                             >
                                 <CloseSquareTwoTone
                                     className="uuidPage__icon"
-                                    twoToneColor={theme.colors.error[100]} />
+                                    twoToneColor={theme.colors.error[100]} 
+                                    onClick={() => {dispatchGlobalEvent({ event: 'janus-ui', data: { handle: 'exit-call' }})}}
+                                    />
                             </Tooltip>
 
                             <Tooltip
@@ -64,14 +70,21 @@ const UuidPage = ({ uuid }: { uuid: string }) => {
                                 title="Microfone off / on."
                                 placement="top"
                             >
-                                <AudioTwoTone twoToneColor={theme.colors.error[100]} className="uuidPage__icon" />
+                                <AudioTwoTone 
+                                twoToneColor={theme.colors.error[100]} 
+                                className="uuidPage__icon" 
+                                onClick={() => {dispatchGlobalEvent({ event: 'janus-ui', data: { handle: 'microphone-toggle', state: 'off' }})}} />
                             </Tooltip>
                             <Tooltip
                                 trigger={['hover']}
                                 title="Camera off."
                                 placement="top"
                             >
-                                <VideoCameraTwoTone twoToneColor={theme.colors.error[100]} className="uuidPage__icon" />
+                                <VideoCameraTwoTone 
+                                twoToneColor={theme.colors.error[100]} 
+                                className="uuidPage__icon"
+                                onClick={() => {dispatchGlobalEvent({ event: 'janus-ui', data: { handle: 'video-toggle', state: 'off' }})}}
+                                />
                             </Tooltip>
                         </div>
                     </div>

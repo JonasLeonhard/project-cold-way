@@ -1,19 +1,29 @@
 import adapter from 'webrtc-adapter';
 import Janus, { JanusJS } from 'janusjs';
 import { SERVER } from './janus.config';
-import { Auth, WebSocketRoom, Ws } from '../../../@types/types';
+import { Auth, WebSocketRoom } from '../../../@types/types';
 
 export type JanusEventType = { event: string, data: any };
+type JanusPublisher = {
+    id: number;
+    display: string;
+    talking: boolean;
+    audio_codec: string;
+    video_codec: string;
+    mediaStream?: MediaStream; // only available after subscribing to above id
+    // when you attach to a publisher, you are not recieving any media over the stream, therefore you are in the 'attached' state. If you are recieving video you are in the 'running' state. If the recieved media failed, you are in the 'error' state
+    state?: 'attached' | 'running' | 'error'; 
+};
 
-const dispatchGlobalEvent = (data: any) => {
-    window.dispatchEvent(new CustomEvent('janus', { 'detail': data }));
+export const dispatchGlobalEvent = (dispatch: JanusEventType) => {
+    window.dispatchEvent(new CustomEvent('janus', { 'detail': dispatch }));
 };
 
 export class StreamManager {
-    ws: Ws; // todo check if deploy message is correct on publish? how do i get the feed publisherId?
     wsRoom: WebSocketRoom;
     auth: Auth;
     setShowConsentDialog: Function;
+    mediaStreamWrapper: HTMLDivElement;
     /**
      * Step (2) Janus instance available after initSession (see constructor);
      */
@@ -22,21 +32,22 @@ export class StreamManager {
      * Step (3) Video.PluginHandle - initialized in attachVideoRoom(), after initSession (see constructor)
      */
     pluginHandlePublish: JanusJS.PluginHandle;
-    pluginHandleSub: JanusJS.PluginHandle;
 
     /**
      * Step (4) after JSEP -> connection established
      * this is the upstream video/audio webrtc stream.
      */
     publishedFeed: MediaStream;
-    subscribedFeeds: MediaStream[];
+    publisherJanusId: number;
+    subscribedFeeds: Set<MediaStream>;
+    subscribedToPublishers: { [publisherId: string] : JanusPublisher };
     
-    constructor(ws: Ws, wsRoom: WebSocketRoom, auth: Auth) {
-        this.ws = ws;
+    constructor(wsRoom: WebSocketRoom, auth: Auth) {
         this.wsRoom = wsRoom;
         this.auth = auth;
-        this.subscribedFeeds = [];
-        
+        this.subscribedToPublishers = {};
+        this.mediaStreamWrapper = document.querySelector('.webRTC__media-stream-wrapper');
+
         try {
             this.initJanus().then(this.initSession).then(janus => {
                 this.janus = janus;
@@ -138,11 +149,26 @@ export class StreamManager {
                 },
                 onmessage: (msg, jsep) => {
                     dispatchGlobalEvent({ event: 'videoroom__publisher__on-message', data: { msg, jsep }});
-                    const msgType = msg['videoroom'];
+                    const msgType: string = msg['videoroom'];
+                    const publishers: Array<JanusPublisher> = msg['publishers'];
                     if (msgType) {
                         switch (msgType) {
                             case 'joined':
+                                this.publisherJanusId = msg['id'];
+                                this.attachLoadingStream('local', this.publisherJanusId);
                                 this.publishFeed(true);
+                                if (publishers) {
+                                    // joined publishers have a media stream already!
+                                    console.log('loadinpublishers', msg);
+                                    this.attachSubscriberToVideoRoomPublishers(publishers);
+                                }
+                                break;
+                            case 'event':
+                                if (publishers) {
+                                    // attach to all publishers we haven't published to already
+                                    this.attachSubscriberToVideoRoomPublishers(publishers);
+                                }
+                                break;
                             default:
                                 console.error('videoroom__publisher__on-message__error, unhandled onmessage type:', msgType);
                         }
@@ -159,6 +185,7 @@ export class StreamManager {
                 onlocalstream: (stream) => {
                     dispatchGlobalEvent({ event: 'videoroom__publisher__on-local-stream', data: { stream }});
                     this.publishedFeed = stream;
+                    this.attachMediaStream('local', this.publisherJanusId, stream);
                 },
                 oncleanup: () => {
                     dispatchGlobalEvent({ event: 'videoroom__publisher__on-cleanup', data: undefined });
@@ -178,7 +205,6 @@ export class StreamManager {
                 Janus.debug(jsep);
                 this.pluginHandlePublish.send({ "message": publish, "jsep": jsep });
                 dispatchGlobalEvent({ event: 'videoroom__publisher__published-feed', data: { publishRequest: { "message": publish, "jsep": jsep } } });
-                this.ws.deploy({ type: 'publishedFeed', data: { feedId: 123133123 }});
             },
             error: error => {
                 dispatchGlobalEvent({ event: 'videoroom__publisher__published-feed-error', data: { error } });
@@ -190,15 +216,27 @@ export class StreamManager {
     }
 
     /**
+     * Attaches to all Subscribers in @param publishers that we haven't subscribed to yet.
+     */
+    private attachSubscriberToVideoRoomPublishers(publishers: Array<JanusPublisher>) {
+        publishers.forEach(publisher => {
+            if (!this.subscribedToPublishers[publisher.id]) {
+                this.subscribedToPublishers[publisher.id] = publisher;
+                this.attachSubscriberToVideoRoomPublisher(publisher.id);
+            }
+        });
+    };
+    /**
      * Step (4): Attach to a published feed by its id. You can specify the codec you want to receive back (optional).
      *  */ 
-    attachSubscriberToVideoRoomPublisher(janusPublisherId: number, videoCodec: (string | undefined)): Promise<void> {
+    private attachSubscriberToVideoRoomPublisher(janusPublisherId: number, videoCodec?: (string | undefined)): Promise<void> {
+        let pluginHandleSub = null;
         return new Promise((resolve, reject) => {
             this.janus.attach({
                 plugin: "janus.plugin.videoroom",
                 opaqueId: this.wsRoom.uuid,
                 success: (pluginHandle) => {
-                    this.pluginHandleSub = pluginHandle;
+                    pluginHandleSub = pluginHandle;
                     dispatchGlobalEvent({ event: 'videoroom__subscriber__initialized', data: { success: true, plugin: pluginHandle.getPlugin(), id: pluginHandle.getId() }});
 
                     const subscribe = {
@@ -212,7 +250,7 @@ export class StreamManager {
                         // @ts-ignore
                         subscribe.videoCodec = videoCodec;
                     }
-                    this.pluginHandleSub.send({ "message": subscribe });
+                    pluginHandleSub.send({ "message": subscribe });
                     resolve();
                 },
                 error: (error) => {
@@ -221,14 +259,24 @@ export class StreamManager {
                 },
                 onmessage: (msg, jsep) => {
                     dispatchGlobalEvent({ event: 'videoroom__subscriber__on-message', data: { msg, jsep }});
-                     // handle Javascript Session Establish Protocol (this time handle accept incoming webrtc connection)
+                    // handle Javascript Session Establish Protocol (this time handle accept incoming webrtc connection)
+                    console.log('onmessage remotestream called', msg);
+                    const event = msg['videoroom'];
+
+                    // incoming streams have 3 states, attached and running/error
+                    if (event === 'attached') {
+                        this.subscribedToPublishers[janusPublisherId].state = 'attached';
+                    } else if (event) {
+                        this.subscribedToPublishers[janusPublisherId].state = msg['started'] ? 'running' : 'error';
+                    }
+
                     if (jsep) {
-                        this.pluginHandleSub.createAnswer({
+                        pluginHandleSub.createAnswer({
                             jsep,
                             media: { audioSend: false, videoSend: false }, // we are recieve only!
                             success: (jsep) => {
                                 const answer = { "request": "start", "room": this.wsRoom.janusRoom.id };
-                                this.pluginHandleSub.send({ "message": answer, jsep });
+                                pluginHandleSub.send({ "message": answer, jsep });
                                 dispatchGlobalEvent({ event: 'videoroom__subscriber__subscribed-to-feed', data: { publishRequest: { "message": answer, jsep } } });
                             },
                             error: (error) => {
@@ -241,11 +289,25 @@ export class StreamManager {
                     dispatchGlobalEvent({ event: 'videoroom__subscriber__webrtc-state', data: { on }});
                 },
                 onremotestream: (stream) => {
-                    dispatchGlobalEvent({ event: 'videoroom__subscriber__remote-stream', data: { stream }});
-                    this.subscribedFeeds.push(stream);
+                    //^ This will get called twice for each subscribed stream, once for audio and once for video. 
+                    //^ It will also be called twice for each publisher state, once for attached and once for running.!
+                    const publisher = this.subscribedToPublishers[janusPublisherId];
+                    
+                    // if the stream is attached or error - show the loading spinner
+                    // else add the mediastream to the publisher and attach the media stream to the video
+                    if (publisher.state !== 'running') {
+                        //show loading spinner video
+                        this.attachLoadingStream('remote', publisher.id)
+                    } else {
+                        // attach the media stream to the loading spinner video
+                        dispatchGlobalEvent({ event: 'videoroom__subscriber__remote-stream', data: { stream }});
+                        this.subscribedToPublishers[janusPublisherId].mediaStream = stream;
+                        this.attachMediaStream('remote', publisher.id, stream);
+                    }
                 },
                 oncleanup: () => {
                     dispatchGlobalEvent({ event: 'videoroom__subscriber__on-cleanup', data: undefined });
+                    this.cleanUp(janusPublisherId);
                 }
             });
         });
@@ -261,5 +323,42 @@ export class StreamManager {
         this.pluginHandlePublish.send({ "message": unPublish });
         this.pluginHandlePublish.hangup();
         dispatchGlobalEvent({ event: 'videoroom__unpublished', data: { success: true } });
+    }
+
+    /**
+     * create a new video object with the publisher id and a loading class in the htmldiv wrapper container (this.mediaStreamWrapper)
+     */
+    attachLoadingStream = (type: 'remote' | 'local', publisherId: number) => {
+        console.log('attachLoadingStream', type, publisherId);
+        const existingLoader: HTMLVideoElement = this.mediaStreamWrapper.querySelector(`.webRTC__mediastream__publisherId-${publisherId}`);
+        if (!existingLoader) {
+            const videoEl = document.createElement('video');
+            videoEl.classList.add('webRTC__mediastream', `webRTC__mediastream__type-${type}`, `webRTC__mediastream__publisherId-${publisherId}`, 'webRTC__mediastream__is-loading');
+            videoEl.autoplay = false;
+            this.mediaStreamWrapper.appendChild(videoEl);
+        }
+    }
+
+    /**
+     * searchers for the loading spinner video object in the htmldiv wrapper container (this.mediaStreamWrapper) and attaches the running
+     * stream, while removing the loading class
+     */
+    attachMediaStream = (type: 'remote' | 'local', publisherId: number, stream: MediaStream) => {
+        const videoEl: HTMLVideoElement = this.mediaStreamWrapper.querySelector(`.webRTC__mediastream__publisherId-${publisherId}`);
+        console.log('attachMediaStream', type, publisherId, stream, videoEl);
+        if (videoEl) {
+            videoEl.classList.remove('webRTC__mediastream__is-loading');
+            videoEl.srcObject = stream;
+            videoEl.autoplay = true;
+        }
+    }
+
+    /**
+     * removes publisher html node in mediaStreamWrapper
+     */
+    cleanUp(publisherId: number) {
+        console.log('cleanup ', publisherId);
+        const videoEl: HTMLVideoElement = this.mediaStreamWrapper.querySelector(`.webRTC__mediastream__publisherId-${publisherId}`);
+        videoEl?.remove();
     }
 };
