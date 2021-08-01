@@ -54,32 +54,14 @@ Make sure the secrets inside ./conf files are changed!
 ```
     ###### WITH THIS REPO #######
     sudo bash janus.sh setup
-
-    export 
     sudo bash janus.sh build
     sudo bash janus.sh start
 
-    ###### WITH APT-GET? #####
-    sudo apt-get install janus #install janus package
-    cd /etc/ssl/certs
-    sudo openssl req -x509 -sha256 -nodes -days 365 -newkey rsa:2048 -keyout /etc/ssl/private/ssl-cert-snakeoil.key -out /etc/ssl/certs/ssl-cert-snakeoil.pem
-
-    # if janus cant open the file, grant read + write permission to file
-    chmod -R 0777 mycert.pem
-    chmod -R 0777 mykey.pem
-
-    # edit /etc/janus/
-    # admin_secret=(see socketService.env)
-    # session_timeout = 60
-    # cert_pem = /usr/share/janus/certs/mycert.pem
-    # cert_key = /usr/share/janus/certs/mycert.key
-    # stun_server = stun.voip.eutelia.it
-    # stun_port = 3478
-    # debug_level = 7
-    # rtp_port_range = 20000-20200
-   
-    janus
-
-    sudo systemctl start janus.service #start service
-    sudo systemctl enable janus.service # to start it also after reboot
+    ##### Go to /opt/janus/etc/janus & edit janus.jcfg ####
+    debug_level = 7
+    admin_secret = "JANUSROOMSECRET"
+    session_timeout = 1000
+    stun_server = "stun.voip.eutelia.it"
+    stun_port = 3478
+    nat_1_1_mapping = "!your natted server ip adress!"
 ```

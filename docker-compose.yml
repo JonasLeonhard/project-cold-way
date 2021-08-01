@@ -74,32 +74,20 @@ services:
     depends_on: 
       - web-rtc-service
 
-  web-rtc-service:
-    build: ./webRTCService
-    image: project_cold_way_web-rtc-service
-    container_name: project_cold_way_web-rtc-service
-    ports:
-      - 20000-20100:20000-20100/udp
-      - 8088:8088
-      - 8188:8188
-      - 7188:7188
-    environment: 
-      ID: "JANUSROOMSECRET"
-      ADMIN_KEY: "JANUSROOMSECRET"
-      SERVER_NAME: "instance_0"
-      WS_PORT: "8188"
-      LOG_PREFIX: "instance_0:"
-      DOCKER_IP: "127.0.0.1"
-      DEBUG_LEVEL: "7"
-      NAT_1_1_MAPPING: "127.0.0.1"
-      RTP_PORT_RANGE: "20000-20100"
-      STUN_SERVER: "stun.voip.eutelia.it"
-      STUN_PORT: "3478"
-      SESSION_TIMEOUT: "60"
-    cap_add:
-      - NET_ADMIN
-    volumes:
-      - ./socketService/janus.sh:/src/janus.sh
+  # web-rtc-service:
+  #   build: ./webRTCService/janus
+  #   image: project_cold_way_web-rtc-service
+  #   container_name: project_cold_way_web-rtc-service
+  #   ports:
+  #     - 20000-20100:20000-20100/udp
+  #     - 8088:8088
+  #     - 8188:8188
+  #     - 7188:7188
+  #   cap_add:
+  #     - NET_ADMIN
+  #   volumes:
+  #     - ./socketService/janus.sh:/src/janus.sh
+  #     - ./socketService/config/janus.jcfg:/opt/janus/etc/janus/janus.jcfg
 
 
 volumes:

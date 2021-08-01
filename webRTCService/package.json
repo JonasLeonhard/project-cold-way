@@ -8,7 +8,7 @@
     "janus:build": "echo -e '🐲 Build Janus Docker-Container: \n' && docker build -t project_cold_way_web-rtc-service .",
     "janus:syncConfigToHost": "echo -e '🐲 Sync config to Host Janus Docker-Container: \n' && bash janus.sh docker:syncConfigToHost",
     "janus:up:novolumne": "echo -e '🐲 Run Janus Docker-Container: \n' && docker container run -d --name project_cold_way_web-rtc-service project_cold_way_web-rtc-service",
-    "janus:up": "echo -e '🐲 Run Janus Docker-Container: \n' && docker container run -d -v $(pwd)/conf:/opt/janus/etc/janus --name project_cold_way_web-rtc-service --network host project_cold_way_web-rtc-service",
+    "janus:up": "echo -e '🐲 Run Janus Docker-Container: \n' && docker container run -d --name project_cold_way_web-rtc-service --network host project_cold_way_web-rtc-service",
     "janus:start": "echo -e '🐲 Start Janus Docker-Container: \n' && docker container start project_cold_way_web-rtc-service",
     "janus:stop": "echo -e '🐲 Stop Janus Docker-Container: \n' && docker container stop project_cold_way_web-rtc-service",
     "janus:down": "echo -e '🐲 Down Janus Docker-Container: \n' && docker container rm project_cold_way_web-rtc-service"
