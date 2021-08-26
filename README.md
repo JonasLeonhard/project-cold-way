@@ -1,28 +1,75 @@
-# project-cold-way
-> Bachelor Thesis Repository
+# Description
+> Development of a web application about literature with focus on chat and language functionality
+
+This work is about the documentation and theoretical classification of a <mark>prototype</mark> for a web app using Technologies like Next.js, Strapi, Postgresql, Express, Websockets, WebRTC, Janus SFU Unit and Docker. The application is intended to enable users to interactively and digitally exchange information about literature in Discussion Room's like Google Hangout.
+
+## Status
+- [ ] _in progress_
+- [x] _finished_
+- [ ] _no longer continued_ 
+
+*this application is finished, as it was part on my bachelor thesis and is supposed to be a prototype!*
 
 ## Table of contents
-- [project-cold-way](#project-cold-way)
+  - [Description](#description)
+  - [Status](#status)
   - [Table of contents](#table-of-contents)
   - [General info](#general-info)
   - [Screenshots](#screenshots)
   - [Technologies](#technologies)
   - [Setup](#setup)
   - [Known Issues](#known-issues)
-  - [Status](#status)
-  - [Todo's](#todos)
-
+  - [Thesis](#thesis)
 ## General info
-This project is simple Lorem ipsum dolor generator.
-![Project Proposal](./readme/architecture.png)
+The platform is developed on the basis of a microservices architecture. Each Service is a dockerized applikation that communicates with the other services and can be deployed independently.
+
+![Project Architecture](./readme/g12.png)
+________
+Frontend Service =  Next.js <br/>
+CMS Service = Strapi <br/>
+Postgres Service = Postgresql <br/>
+Auth Service = Express.js <br/>
+Socket Service = Websocket Server <br />
+WebRTC Service = Janus WebRTC - SFU Unit <br />
+________
+</br></br></br>
 
 ## Screenshots
-- null 
+![Homepage](./readme/screen01.png)
+| Homepage | <br/><br/>
+
+
+![Login](./readme/screen04.png)
+| Login Screen | <br/><br/>
+
+![Room Single](./readme/screen02.png)
+| Join Room | <br/><br/>
+
+![Room Multi](./readme/screen03.png)
+| Room | <br/><br/>
+
 ## Technologies
-Project is created with:
-* Lorem version: 12.3
-* Ipsum version: 2.33
-* Ament library version: 999
+Main Technologies used in the project: 
+* Frontend Service =  Next.js
+  - Apollo Client for consuming Strapi's Graphql API
+  - AntDesign Component System  
+  - Styled Components
+  - NProgress Bar
+  - Jason Web Tokens Authentication
+  - Janus.js Client to communicate with Janus WebRTC Service
+* CMS Service = Strapi 
+  - Using Graphql API Plugin
+* Postgres Service = Postgresql
+  - Two Databases (strapi & backend), one for the cms and one for the auth service 
+* Auth Service = Express.js
+  - Passport
+  - Jason Web Tokens
+  - Bcrypt
+  - Sequelize
+* Socket Service = Websocket Server
+  - Websocket Server
+* WebRTC Service = Janus WebRTC - SFU Unit
+  - VideoRoom Plugin
 
 ## Setup
 [Env] Environment Setup:
@@ -48,10 +95,13 @@ Then go to settings->roles(Users & Permissions plugin)->check count, find, findo
 
 [Local] To run this project, install it locally using yarn:
 - requirements: setup postgres database at localhost:5432 -> see defaults at /cms/config/database.js
-- install dependencies in /frontend & /cms (yarn)
+- install dependencies in /frontend & /cms & /socketService & /authService (yarn)
 ```bash
-$ cd frontend && yarn start
+$ cd authService && yarn build && yarn dev
 $ cd cms && yarn develop
+$ cd socketService && yarn build && yarn dev
+$ cd webRTCService && bash helper.sh setup && bash helper.sh build && bash helper.sh start 
+$ cd frontend && yarn start
 ```
 
 [Docker] When you have an existing strapi database to restore to your new container:
@@ -65,32 +115,5 @@ $ sh helper.sh db-applybackup --container-name project_cold_way_postgres --file 
 $ sh helper.sh db-applysql --container-name project_cold_way_postgres --schema 1-schema.sql --postgres-user postgres
 ```
 
-## Status
-- [x] _in progress_
-- [ ] _finished_
-- [ ] _no longer continued_ 
-
-*this application is currently under development*
-
-## Todo's
-
-Environment:
-- [x] add docker-compose setup for all architecture components
-
-Frontend:
-- [x] add component library to frontend (Ant Design)
-- [ ] create pages for /books /author /room
-- [ ] add user authentication + oauth
-- [x] add websocket communication layer
-- [ ] add webRTC communication layer (connector)
-
-Backend:
-- [x] add base "express" live server to backend (base.server)
-- [x] add websocket communication layer to base.server 
-- [ ] add node voice server to backend (voice.server)
-- [ ] add node worker server to backend (worker.server)
-- [ ] add rabbitMQ communication
-- [ ] add WebRTC communication layer (receiver)
-
-CMS:
-- [ ] add book & author types
+## Thesis
+read the thesis at <a href="./readme/Bachelorarbeit_Jonas-Leonhard_611179.pdf">Thesis.pdf</a>
