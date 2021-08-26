@@ -21,7 +21,7 @@ This work is about the documentation and theoretical classification of a <mark>p
   - [Known Issues](#known-issues)
   - [Thesis](#thesis)
 ## General info
-The platform is developed on the basis of a microservices architecture. Each Service is a dockerized applikation that communicates with the other services and can be deployed independently.
+The platform is developed on the basis of a microservices architecture. Each Service is a dockerized application that communicates with the other services and can be deployed independently.
 
 ![Project Architecture](./readme/g12.png)
 ________
@@ -94,7 +94,7 @@ Then go to settings->roles(Users & Permissions plugin)->check count, find, findo
 
 
 [Local] To run this project, install it locally using yarn:
-- requirements: setup postgres database at localhost:5432 -> see defaults at /cms/config/database.js
+- requirements: setup postgres database's at localhost:5432 -> see defaults at /cms/config/database.js or .env files. You can find the default database requirements in /postgres/1-schema.sql .
 - install dependencies in /frontend & /cms & /socketService & /authService (yarn)
 ```bash
 $ cd authService && yarn build && yarn dev
