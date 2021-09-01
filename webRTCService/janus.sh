@@ -11,6 +11,7 @@
 # Exit on Error
 set -e
 
+echo -e "🐲 janus.sh: requires using 'bash janus.sh'" 
 # Ansi color code variables
 GREEN="\033[0;92m"
 RED="\033[0;91m"
